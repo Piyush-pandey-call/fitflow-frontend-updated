@@ -1,0 +1,125 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <div>
+      <h1>{{ gym()?.name || 'Gym' }}</h1>
+      <p class="dashboard-subtitle">
+        {{ gym()?.email }}<ng-container *ngIf="gym()?.city"> • {{ gym()?.city }}</ng-container>
+      </p>
+    </div>
+    <div class="header-actions">
+      <a class="btn-secondary" routerLink="/admin/gyms">← All gyms</a>
+      <button type="button" class="btn-danger" [disabled]="isDeleting()" (click)="deleteGym()">
+        {{ isDeleting() ? 'Deleting…' : 'Delete gym permanently' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="dashboard-error" *ngIf="gymError()">{{ gymError() }}</div>
+
+  <div class="gym-summary" *ngIf="gym() as g">
+    <div class="summary-stat">
+      <span class="summary-value">{{ statusLabels[g.status] }}</span>
+      <span class="summary-label">status</span>
+    </div>
+    <div class="summary-stat">
+      <span class="summary-value">{{ g.totalMembers }}</span>
+      <span class="summary-label">members</span>
+    </div>
+    <div class="summary-stat">
+      <span class="summary-value">{{ g.totalTrainers }}</span>
+      <span class="summary-label">trainers</span>
+    </div>
+    <div class="summary-stat" *ngIf="g.trialEndsAt">
+      <span class="summary-value">{{ g.trialEndsAt | date: 'd MMM y, h:mm a' }}</span>
+      <span class="summary-label">trial {{ g.status === 'TRIAL' ? 'ends' : 'ended' }}</span>
+    </div>
+  </div>
+
+  <section class="activate-card" *ngIf="gym()">
+    <h3>Activate paid plan</h3>
+    <p class="page-subtitle">Use this only after you have confirmed this owner's payment. Access starts today.</p>
+    <div class="activate-row">
+      <label>Plan
+        <select [value]="activatePlanId()" (change)="activatePlanId.set($any($event.target).value)">
+          <option *ngFor="let p of plans()" [value]="p.id">{{ p.name }}</option>
+        </select>
+      </label>
+      <label>Duration
+        <select [value]="activateCycle()" (change)="activateCycle.set($any($event.target).value)">
+          <option value="MONTHLY">1 month</option>
+          <option value="HALF_YEARLY">6 months</option>
+          <option value="YEARLY">1 year</option>
+        </select>
+      </label>
+      <button type="button" class="btn-primary" [disabled]="isActivating() || !activatePlanId()" (click)="activatePlan()">
+        {{ isActivating() ? 'Activating…' : 'Activate plan' }}
+      </button>
+    </div>
+    <p class="activate-ok" *ngIf="activateMessage()">{{ activateMessage() }}</p>
+    <p class="activate-err" *ngIf="activateError()">{{ activateError() }}</p>
+  </section>
+
+  <div class="tab-bar" role="tablist">
+    <button type="button" role="tab" [class.active]="activeTab() === 'members'" (click)="setTab('members')">Members</button>
+    <button type="button" role="tab" [class.active]="activeTab() === 'trainers'" (click)="setTab('trainers')">Trainers</button>
+  </div>
+
+  <div class="dashboard-error" *ngIf="listError()">
+    {{ listError() }}
+    <button class="btn-retry" (click)="loadActiveTab()">Retry</button>
+  </div>
+
+  <div class="dashboard-skeleton" *ngIf="isLoadingList()">Loading…</div>
+
+  <!-- MEMBERS -->
+  <ng-container *ngIf="activeTab() === 'members' && !isLoadingList() && membersPage() as page">
+    <app-empty-state *ngIf="page.content.length === 0" icon="👥" title="No members yet" message="This gym hasn't added any members."></app-empty-state>
+
+    <table class="data-table" *ngIf="page.content.length > 0">
+      <thead>
+        <tr><th>Member</th><th>Mobile</th><th>Status</th><th>Membership expires</th><th>Trainer</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let m of page.content">
+          <td>{{ m.fullName }}</td>
+          <td>{{ m.mobileNumber }}</td>
+          <td>{{ memberStatusLabels[m.status] }}</td>
+          <td>{{ m.membershipExpiryDate ? (m.membershipExpiryDate | date: 'd MMM y') : '—' }}</td>
+          <td>{{ m.assignedTrainerName || 'Unassigned' }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <app-pagination
+      *ngIf="page.content.length > 0"
+      [pageNumber]="page.pageNumber" [totalPages]="page.totalPages" [totalElements]="page.totalElements"
+      [pageSize]="page.pageSize" [first]="page.first" [last]="page.last" (pageChange)="onPageChange($event)"
+    ></app-pagination>
+  </ng-container>
+
+  <!-- TRAINERS -->
+  <ng-container *ngIf="activeTab() === 'trainers' && !isLoadingList() && trainersPage() as page">
+    <app-empty-state *ngIf="page.content.length === 0" icon="🏋️" title="No trainers yet" message="This gym hasn't added any trainers."></app-empty-state>
+
+    <table class="data-table" *ngIf="page.content.length > 0">
+      <thead>
+        <tr><th>Trainer</th><th>Mobile</th><th>Email</th><th>Experience</th><th>Assigned members</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of page.content">
+          <td>{{ t.fullName }}</td>
+          <td>{{ t.mobileNumber }}</td>
+          <td>{{ t.email || '—' }}</td>
+          <td>{{ t.experienceYears != null ? t.experienceYears + ' yrs' : '—' }}</td>
+          <td>{{ t.assignedMemberCount }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <app-pagination
+      *ngIf="page.content.length > 0"
+      [pageNumber]="page.pageNumber" [totalPages]="page.totalPages" [totalElements]="page.totalElements"
+      [pageSize]="page.pageSize" [first]="page.first" [last]="page.last" (pageChange)="onPageChange($event)"
+    ></app-pagination>
+  </ng-container>
+</div>

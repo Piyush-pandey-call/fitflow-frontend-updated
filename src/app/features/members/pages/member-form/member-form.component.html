@@ -1,0 +1,141 @@
+<div class="dashboard-page form-page">
+  <div class="dashboard-header">
+    <h1>{{ isEditMode() ? 'Edit Member' : 'Add Member' }}</h1>
+    <a class="btn-refresh" routerLink="/members">← Back to Members</a>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">{{ errorMessage() }}</div>
+  <div class="dashboard-skeleton" *ngIf="isLoading()">Loading member…</div>
+
+  <form *ngIf="!isLoading()" [formGroup]="form" (ngSubmit)="onSubmit()" class="member-form-card" novalidate>
+    <div class="profile-image-row" *ngIf="isEditMode()">
+      <img
+        [src]="currentProfileImageUrl() || 'https://api.dicebear.com/7.x/initials/svg?seed=' + f.fullName.value"
+        class="profile-image-preview"
+        alt=""
+      />
+      <div>
+        <label class="file-upload-btn">
+          {{ isUploadingImage() ? 'Uploading…' : 'Change Photo' }}
+          <input type="file" accept="image/*" (change)="onFileSelected($event)" [disabled]="isUploadingImage()" hidden />
+        </label>
+        <p class="field-hint">JPG or PNG, uploaded immediately.</p>
+      </div>
+    </div>
+
+    <h3 class="form-section-title">Basic Information</h3>
+    <div class="form-row">
+      <div class="form-field">
+        <label for="fullName">Full Name</label>
+        <input id="fullName" type="text" formControlName="fullName" [class.invalid]="f.fullName.invalid && f.fullName.touched" />
+        <span class="field-error" *ngIf="f.fullName.invalid && f.fullName.touched">Full name is required</span>
+      </div>
+      <div class="form-field">
+        <label for="mobileNumber">Mobile Number</label>
+        <input id="mobileNumber" type="tel" formControlName="mobileNumber" placeholder="+919876543210"
+          [class.invalid]="f.mobileNumber.invalid && f.mobileNumber.touched" />
+        <span class="field-error" *ngIf="f.mobileNumber.invalid && f.mobileNumber.touched">
+          Enter a valid 10-15 digit number
+        </span>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label for="email">Email <span class="field-hint">(optional)</span></label>
+        <input id="email" type="email" formControlName="email" [class.invalid]="f.email.invalid && f.email.touched" />
+        <span class="field-error" *ngIf="f.email.invalid && f.email.touched">Enter a valid email</span>
+      </div>
+      <div class="form-field">
+        <label for="gender">Gender <span class="field-hint">(optional)</span></label>
+        <select id="gender" formControlName="gender">
+          <option [ngValue]="null">Select gender</option>
+          <option *ngFor="let opt of genderOptions" [value]="opt.value">{{ opt.label }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row" *ngIf="!isEditMode()">
+      <div class="form-field password-field">
+        <label for="password">
+          Member Login Password
+          <span class="field-hint" *ngIf="f.email.value">(required – the member logs in with this email + password)</span>
+          <span class="field-hint" *ngIf="!f.email.value">(add an email above to create a login for this member)</span>
+        </label>
+        <div class="password-input-wrap">
+          <input
+            id="password"
+            [type]="showPassword() ? 'text' : 'password'"
+            formControlName="password"
+            [disabled]="!f.email.value"
+            placeholder="Set a password for this member"
+            [class.invalid]="f.password.invalid && f.password.touched"
+          />
+          <button type="button" class="password-toggle-btn" (click)="togglePasswordVisibility()" tabindex="-1">
+            {{ showPassword() ? 'Hide' : 'Show' }}
+          </button>
+        </div>
+        <span class="field-error" *ngIf="f.password.invalid && f.password.touched">
+          Password must be at least 6 characters
+        </span>
+        <p class="field-hint" *ngIf="f.email.value">
+          Share this password with the member — they'll use it to log in at the Member Login page.
+        </p>
+      </div>
+      <div class="form-field"></div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label for="dateOfBirth">Date of Birth <span class="field-hint">(optional)</span></label>
+        <input id="dateOfBirth" type="date" formControlName="dateOfBirth" />
+      </div>
+      <div class="form-field">
+        <label for="assignedTrainerId">Assigned Trainer <span class="field-hint">(optional)</span></label>
+        <select id="assignedTrainerId" formControlName="assignedTrainerId">
+          <option value="">No trainer assigned</option>
+          <option *ngFor="let trainer of trainers()" [value]="trainer.id">{{ trainer.fullName }}</option>
+        </select>
+      </div>
+    </div>
+
+    <h3 class="form-section-title">Fitness Details</h3>
+    <div class="form-row">
+      <div class="form-field">
+        <label for="heightCm">Height (cm) <span class="field-hint">(optional)</span></label>
+        <input id="heightCm" type="number" formControlName="heightCm" min="0" />
+      </div>
+      <div class="form-field">
+        <label for="weightKg">Weight (kg) <span class="field-hint">(optional)</span></label>
+        <input id="weightKg" type="number" formControlName="weightKg" min="0" />
+      </div>
+    </div>
+    <div class="form-field">
+      <label for="goal">Fitness Goal <span class="field-hint">(optional)</span></label>
+      <input id="goal" type="text" formControlName="goal" placeholder="e.g. Weight loss, muscle gain" />
+    </div>
+
+    <h3 class="form-section-title">Contact & Emergency</h3>
+    <div class="form-field">
+      <label for="address">Address <span class="field-hint">(optional)</span></label>
+      <input id="address" type="text" formControlName="address" />
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label for="emergencyContactName">Emergency Contact Name <span class="field-hint">(optional)</span></label>
+        <input id="emergencyContactName" type="text" formControlName="emergencyContactName" />
+      </div>
+      <div class="form-field">
+        <label for="emergencyContactNumber">Emergency Contact Number <span class="field-hint">(optional)</span></label>
+        <input id="emergencyContactNumber" type="tel" formControlName="emergencyContactNumber" />
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <a routerLink="/members" class="btn-secondary">Cancel</a>
+      <button type="submit" class="btn-primary btn-inline" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Saving…' : isEditMode() ? 'Save Changes' : 'Add Member' }}
+      </button>
+    </div>
+  </form>
+</div>

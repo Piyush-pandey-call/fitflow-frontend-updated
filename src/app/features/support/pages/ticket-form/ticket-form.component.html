@@ -1,0 +1,48 @@
+<div class="dashboard-page form-page">
+  <div class="dashboard-header">
+    <h1>New Support Ticket</h1>
+    <a class="btn-secondary" routerLink="/support">← Back to Tickets</a>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">{{ errorMessage() }}</div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="member-form-card" novalidate>
+    <div class="form-field">
+      <label for="subject">Subject</label>
+      <input
+        id="subject"
+        type="text"
+        formControlName="subject"
+        placeholder="Brief summary of the issue"
+        [class.invalid]="f.subject.invalid && f.subject.touched"
+      />
+      <span class="field-error" *ngIf="f.subject.invalid && f.subject.touched">Subject is required</span>
+    </div>
+
+    <div class="form-field">
+      <label for="priority">Priority</label>
+      <select id="priority" formControlName="priority">
+        <option *ngFor="let p of priorityOptions" [value]="p">{{ priorityLabels[p] }}</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label for="description">Description</label>
+      <textarea
+        id="description"
+        rows="6"
+        formControlName="description"
+        placeholder="Describe what's happening, steps to reproduce, and anything else that would help us help you."
+        [class.invalid]="f.description.invalid && f.description.touched"
+      ></textarea>
+      <span class="field-error" *ngIf="f.description.invalid && f.description.touched">Description is required</span>
+    </div>
+
+    <div class="form-actions">
+      <a routerLink="/support" class="btn-secondary">Cancel</a>
+      <button type="submit" class="btn-primary btn-inline" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Submitting…' : 'Submit Ticket' }}
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,78 @@
+<div class="pricing-page">
+  <div class="dashboard-header">
+    <div>
+      <h1>Choose your FitFlow plan</h1>
+      <p class="page-subtitle">Plans and prices are loaded from your FitFlow account.</p>
+    </div>
+  </div>
+
+  <div class="checkout-notice error-notice" *ngIf="planError()">
+    {{ planError() }}
+  </div>
+  <div class="checkout-notice error-notice" *ngIf="subscriptionError()">
+    Could not load your current subscription: {{ subscriptionError() }}
+  </div>
+
+  <section class="subscription-status" *ngIf="currentSubscription() as subscription">
+    <div>
+      <span class="status-label">CURRENT SUBSCRIPTION</span>
+      <h2>{{ subscription.planName }}</h2>
+      <p>
+        {{ subscription.billingCycle | titlecase }} ·
+        {{ subscription.status.replace('_', ' ') | titlecase }}
+      </p>
+    </div>
+    <div class="subscription-period" *ngIf="subscription.status === 'ACTIVE' || subscription.status === 'TRIAL'">
+      <span>Access through</span>
+      <strong>{{ subscription.currentPeriodEnd | date:'mediumDate' }}</strong>
+    </div>
+  </section>
+
+  <div class="checkout-notice" *ngIf="isLoadingPlans()">Loading available plans…</div>
+  <div class="checkout-notice" *ngIf="!isLoadingPlans() && !planError() && paidPlans.length === 0">
+    No paid subscription plans are currently available. Please contact FitFlow support.
+  </div>
+
+  <div class="tier-grid" *ngIf="!isLoadingPlans() && paidPlans.length > 0">
+    <article class="tier-card" *ngFor="let plan of paidPlans">
+      <span class="tier-badge">FITFLOW PLAN</span>
+      <h2>{{ plan.name }}</h2>
+      <p class="plan-description">{{ plan.description }}</p>
+
+      <ul class="tier-features">
+        <li *ngFor="let feature of plan.features">{{ feature }}</li>
+        <li *ngIf="plan.maxMembers !== null">Up to {{ plan.maxMembers }} members</li>
+        <li *ngIf="plan.maxTrainers !== null">Up to {{ plan.maxTrainers }} trainers</li>
+      </ul>
+
+      <div class="billing-options">
+        <div class="billing-option" *ngIf="plan.monthlyPrice > 0">
+          <div>
+            <span>Monthly</span>
+            <strong>{{ plan.monthlyPrice | currency:'INR':'symbol':'1.0-0' }}</strong>
+          </div>
+          <button type="button" class="btn-tier btn-tier-monthly"
+            (click)="selectPlan(plan, BillingCycle.MONTHLY)">
+            Choose monthly
+          </button>
+        </div>
+
+        <div class="billing-option" *ngIf="(plan.yearlyPrice ?? 0) > 0">
+          <div>
+            <span>Yearly</span>
+            <strong>{{ plan.yearlyPrice | currency:'INR':'symbol':'1.0-0' }}</strong>
+          </div>
+          <button type="button" class="btn-tier btn-tier-yearly"
+            (click)="selectPlan(plan, BillingCycle.YEARLY)">
+            Choose yearly
+          </button>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <p class="pricing-footnote">
+    The final payable amount is confirmed by FitFlow’s server before the secure payment window opens.
+    Access changes only after payment verification.
+  </p>
+</div>

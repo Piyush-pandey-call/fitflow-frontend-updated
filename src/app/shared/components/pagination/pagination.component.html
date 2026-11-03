@@ -1,0 +1,44 @@
+<nav class="pagination-bar" *ngIf="totalElements > 0" aria-label="Pagination">
+  <span class="pagination-info">
+    Showing <strong>{{ rangeStart }}–{{ rangeEnd }}</strong> of <strong>{{ totalElements }}</strong>
+  </span>
+
+  <div class="pagination-controls">
+    <button
+      class="page-btn page-arrow"
+      type="button"
+      [disabled]="pageNumber === 0 || first"
+      (click)="goTo(pageNumber - 1)"
+      aria-label="Previous page"
+    >
+      <span aria-hidden="true">‹</span>
+      <span class="arrow-label">Previous</span>
+    </button>
+
+    <ng-container *ngFor="let page of visiblePages; let i = index">
+      <span class="page-ellipsis" *ngIf="page === null" aria-hidden="true">…</span>
+      <button
+        *ngIf="page !== null"
+        class="page-number"
+        type="button"
+        [class.active]="page === pageNumber"
+        [attr.aria-current]="page === pageNumber ? 'page' : null"
+        [attr.aria-label]="'Page ' + (page + 1)"
+        (click)="goTo(page)"
+      >
+        {{ page + 1 }}
+      </button>
+    </ng-container>
+
+    <button
+      class="page-btn page-arrow"
+      type="button"
+      [disabled]="pageNumber >= totalPages - 1 || last"
+      (click)="goTo(pageNumber + 1)"
+      aria-label="Next page"
+    >
+      <span class="arrow-label">Next</span>
+      <span aria-hidden="true">›</span>
+    </button>
+  </div>
+</nav>

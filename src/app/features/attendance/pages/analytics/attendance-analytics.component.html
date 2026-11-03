@@ -1,0 +1,37 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <h1>Attendance Analytics</h1>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">
+    {{ errorMessage() }}
+    <button class="btn-retry" (click)="load()">Retry</button>
+  </div>
+
+  <div class="details-card" style="margin-bottom: 20px">
+    <div class="analytics-range">
+      <div class="form-field">
+        <label for="fromDate">From</label>
+        <input id="fromDate" type="date" [(ngModel)]="fromDate" />
+      </div>
+      <div class="form-field">
+        <label for="toDate">To</label>
+        <input id="toDate" type="date" [(ngModel)]="toDate" />
+      </div>
+      <button type="button" class="btn-primary btn-inline" (click)="load()" [disabled]="isLoading()">
+        {{ isLoading() ? 'Loading…' : 'Apply' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="dashboard-skeleton" *ngIf="isLoading() && !analytics()">Loading analytics…</div>
+
+  <ng-container *ngIf="analytics() as a">
+    <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr)">
+      <app-stats-card label="Check-Ins Today" [value]="a.todayCount" tone="primary"></app-stats-card>
+      <app-stats-card label="Distinct Members Today" [value]="a.todayDistinctMembers" tone="success"></app-stats-card>
+    </div>
+
+    <app-line-chart title="Daily Check-Ins" [data]="chartData()" color="#4f46e5"></app-line-chart>
+  </ng-container>
+</div>

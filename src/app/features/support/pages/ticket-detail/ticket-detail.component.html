@@ -1,0 +1,67 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <h1>{{ ticket()?.subject || 'Support Ticket' }}</h1>
+    <a class="btn-secondary" routerLink="/support">← Back to Tickets</a>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">{{ errorMessage() }}</div>
+  <div class="dashboard-skeleton" *ngIf="isLoading()">Loading ticket…</div>
+
+  <ng-container *ngIf="ticket() as t">
+    <div class="details-card" style="margin-bottom: 20px">
+      <div class="details-grid">
+        <div>
+          <span class="details-label">Gym</span>
+          <span class="details-value">{{ t.gymName }}</span>
+        </div>
+        <div>
+          <span class="details-label">Priority</span>
+          <span class="details-value">{{ t.priority }}</span>
+        </div>
+        <div>
+          <span class="details-label">Status</span>
+          <span class="status-badge" [ngClass]="statusTone(t.status)">{{ statusLabels[t.status] }}</span>
+        </div>
+        <div>
+          <span class="details-label">Raised</span>
+          <span class="details-value">{{ t.createdAt | date: 'medium' }}</span>
+        </div>
+        <div>
+          <span class="details-label">Last Updated</span>
+          <span class="details-value">{{ t.updatedAt | date: 'medium' }}</span>
+        </div>
+      </div>
+
+      <div style="margin-top: 14px">
+        <span class="details-label">Description</span>
+        <p class="details-value" style="white-space: pre-wrap">{{ t.description }}</p>
+      </div>
+
+      <div style="margin-top: 14px" *ngIf="t.resolutionNotes">
+        <span class="details-label">Resolution Notes</span>
+        <p class="details-value" style="white-space: pre-wrap">{{ t.resolutionNotes }}</p>
+      </div>
+    </div>
+
+    <div class="details-card" *ngIf="authService.currentUser()?.role === Role.SUPER_ADMIN">
+      <h3 class="form-section-title">Update Ticket</h3>
+      <form [formGroup]="updateForm" (ngSubmit)="submitUpdate()" novalidate>
+        <div class="form-field">
+          <label for="status">Status</label>
+          <select id="status" formControlName="status">
+            <option *ngFor="let s of statusOptions" [value]="s">{{ statusLabels[s] }}</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="resolutionNotes">Resolution Notes <span class="field-hint">(optional)</span></label>
+          <textarea id="resolutionNotes" rows="4" formControlName="resolutionNotes"></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary btn-inline" [disabled]="isSubmitting()">
+            {{ isSubmitting() ? 'Saving…' : 'Save Update' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </ng-container>
+</div>

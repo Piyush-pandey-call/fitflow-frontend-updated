@@ -1,0 +1,33 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <div>
+      <h1>Platform overview</h1>
+      <p class="page-subtitle">Every gym on FitFlow, and what's happening inside them.</p>
+    </div>
+    <button class="btn-refresh" (click)="load()" [disabled]="isLoading()">
+      {{ isLoading() ? 'Refreshing…' : 'Refresh' }}
+    </button>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">
+    {{ errorMessage() }}
+    <button class="btn-retry" (click)="load()">Retry</button>
+  </div>
+
+  <div class="dashboard-skeleton" *ngIf="isLoading() && !dashboard()">Loading platform metrics…</div>
+
+  <ng-container *ngIf="dashboard() as d">
+    <div class="stats-grid">
+      <app-stats-card label="Total gyms" [value]="d.totalGyms" tone="primary"></app-stats-card>
+      <app-stats-card label="Active gyms" [value]="d.activeGyms" tone="success"></app-stats-card>
+      <app-stats-card label="Gyms on trial" [value]="d.trialGyms" tone="neutral"></app-stats-card>
+      <app-stats-card label="Open support tickets" [value]="d.openSupportTickets" tone="warning"></app-stats-card>
+    </div>
+
+    <section class="details-card" style="padding:25px;margin-top:24px">
+      <h3 class="form-section-title">GYM OWNERS</h3>
+      <p class="page-subtitle">Open the full list, then click any gym to see all of its members and trainers.</p>
+      <a routerLink="/admin/gyms" class="btn-primary" style="display:inline-block;margin-top:12px">View all gyms →</a>
+    </section>
+  </ng-container>
+</div>

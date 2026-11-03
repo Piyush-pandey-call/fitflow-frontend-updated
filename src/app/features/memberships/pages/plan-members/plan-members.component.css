@@ -1,0 +1,12 @@
+.plan-summary-bar {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  padding: 0.85rem 1.1rem;
+  margin-bottom: 1rem;
+  background: var(--ff-bg-elevated, #15171e);
+  border: 1px solid var(--ff-border, #23262f);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  color: var(--ff-text-muted, #9096a3);
+}

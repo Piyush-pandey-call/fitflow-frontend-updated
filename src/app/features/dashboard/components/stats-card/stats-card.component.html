@@ -1,0 +1,10 @@
+<div class="stats-card" [class]="'tone-' + tone">
+  <span class="stats-card-label">
+    <svg class="stats-card-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path [attr.d]="iconPath" />
+    </svg>
+    {{ label }}
+  </span>
+  <span class="stats-card-value">{{ value }}</span>
+  <span class="stats-card-hint" *ngIf="hint">{{ hint }}</span>
+</div>

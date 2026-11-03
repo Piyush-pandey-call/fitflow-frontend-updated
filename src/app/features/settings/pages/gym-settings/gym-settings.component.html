@@ -1,0 +1,99 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <h1>Gym Settings</h1>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">{{ errorMessage() }}</div>
+  <div class="success-banner" *ngIf="successMessage()">{{ successMessage() }}</div>
+  <div class="dashboard-skeleton" *ngIf="isLoading()">Loading settings…</div>
+
+  <ng-container *ngIf="!isLoading() && gym() as g">
+<div class="settings-layout"><div>    <!-- Gym profile form -->
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="member-form-card" novalidate>
+      <h3 class="form-section-title">Gym Profile</h3>
+
+      <div class="form-field">
+        <label for="name">Gym Name</label>
+        <input id="name" type="text" formControlName="name" [class.invalid]="f.name.invalid && f.name.touched" />
+        <span class="field-error" *ngIf="f.name.invalid && f.name.touched">Gym name is required</span>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label for="phoneNumber">Phone Number <span class="field-hint">(optional)</span></label>
+          <input id="phoneNumber" type="tel" formControlName="phoneNumber" />
+        </div>
+        <div class="form-field">
+          <label for="gstNumber">GST Number <span class="field-hint">(optional)</span></label>
+          <input id="gstNumber" type="text" formControlName="gstNumber" />
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label for="address">Address <span class="field-hint">(optional)</span></label>
+        <input id="address" type="text" formControlName="address" />
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label for="city">City <span class="field-hint">(optional)</span></label>
+          <input id="city" type="text" formControlName="city" />
+        </div>
+        <div class="form-field">
+          <label for="state">State <span class="field-hint">(optional)</span></label>
+          <input id="state" type="text" formControlName="state" />
+        </div>
+        <div class="form-field">
+          <label for="postalCode">Postal Code <span class="field-hint">(optional)</span></label>
+          <input id="postalCode" type="text" formControlName="postalCode" />
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-primary btn-inline" [disabled]="isSaving()">
+          {{ isSaving() ? 'Saving…' : 'Save Changes' }}
+        </button>
+      </div>
+    </form>
+</div><aside class="settings-side">    <!-- Branding -->
+    <div class="details-card" style="margin-bottom: 20px">
+      <h3 class="form-section-title">Branding</h3>
+      <div style="display: flex; align-items: center; gap: 16px">
+        <img
+          [src]="g.logoUrl || 'https://api.dicebear.com/7.x/initials/svg?seed=' + g.name"
+          alt=""
+          style="width: 72px; height: 72px; border-radius: 12px; object-fit: cover; background: #eef2ff"
+        />
+        <div>
+          <label class="file-upload-btn">
+            {{ isUploadingLogo() ? 'Uploading…' : 'Change Logo' }}
+            <input type="file" accept="image/*" (change)="onLogoSelected($event)" [disabled]="isUploadingLogo()" hidden />
+          </label>
+          <p class="field-hint">JPG or PNG, uploaded immediately.</p>
+        </div>
+      </div>
+
+      <div class="details-grid" style="margin-top: 16px">
+        <div>
+          <span class="details-label">Gym Type</span>
+          <span class="details-value">{{ typeLabels[g.gymType] }}</span>
+        </div>
+        <div>
+          <span class="details-label">Plan Status</span>
+          <span class="status-badge" [ngClass]="{ 'badge-success': g.status === 'ACTIVE', 'badge-warning': g.status === 'TRIAL', 'badge-neutral': g.status === 'SUSPENDED' || g.status === 'CANCELLED' }">
+            {{ statusLabels[g.status] }}
+          </span>
+        </div>
+        <div *ngIf="g.trialEndsAt">
+          <span class="details-label">Trial Ends</span>
+          <span class="details-value">{{ g.trialEndsAt | date: 'mediumDate' }}</span>
+        </div>
+        <div>
+          <span class="details-label">Members / Trainers</span>
+          <span class="details-value">{{ g.totalMembers }} members, {{ g.totalTrainers }} trainers</span>
+        </div>
+      </div>
+    </div>
+
+<section class="details-card"><h3 class="form-section-title">ACCOUNT & SECURITY</h3><h2>{{user()?.fullName}}</h2><p>{{user()?.email}}</p><a class="btn-primary btn-inline" routerLink="/profile">Change password</a></section><section class="details-card"><h3 class="form-section-title">TRIAL & SUPPORT</h3><h2>Need a hand?</h2><p>Get help with FitFlow and your gym subscription.</p><a class="btn-primary btn-inline" routerLink="/support/new">Create support ticket</a><p><a class="action-link" routerLink="/billing/pricing">View FitFlow plans →</a></p></section></aside></div>  </ng-container>
+</div>

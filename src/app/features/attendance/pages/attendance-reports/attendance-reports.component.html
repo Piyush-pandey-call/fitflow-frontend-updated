@@ -1,0 +1,58 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <h1>Attendance History<ng-container *ngIf="member() as m"> — {{ m.fullName }}</ng-container></h1>
+    <a class="btn-secondary" *ngIf="member() as m" [routerLink]="['/members', m.id]">← Back to Member</a>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">
+    {{ errorMessage() }}
+    <button class="btn-retry" (click)="load()">Retry</button>
+  </div>
+
+  <div class="dashboard-skeleton" *ngIf="isLoading() && !pageData()">Loading history…</div>
+
+  <ng-container *ngIf="pageData() as page">
+    <app-empty-state
+      *ngIf="page.content.length === 0"
+      icon="🗓️"
+      title="No attendance recorded"
+      message="This member hasn't checked in yet."
+    ></app-empty-state>
+
+    <table class="data-table" *ngIf="page.content.length > 0">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Check-In</th>
+          <th>Check-Out</th>
+          <th>Duration</th>
+          <th>Method</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let record of page.content" class="table-row">
+          <td>{{ record.attendanceDate | date: 'mediumDate' }}</td>
+          <td>{{ record.checkInTime | date: 'shortTime' }}</td>
+          <td>{{ record.checkOutTime ? (record.checkOutTime | date: 'shortTime') : '—' }}</td>
+          <td>{{ record.checkOutTime ? durationLabel(record.checkInTime, record.checkOutTime) : 'Still checked in' }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="record.method === AttendanceMethod.QR_CODE ? 'badge-primary' : 'badge-neutral'">
+              {{ methodLabels[record.method] }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <app-pagination
+      *ngIf="page.content.length > 0"
+      [pageNumber]="page.pageNumber"
+      [totalPages]="page.totalPages"
+      [totalElements]="page.totalElements"
+      [pageSize]="page.pageSize"
+      [first]="page.first"
+      [last]="page.last"
+      (pageChange)="onPageChange($event)"
+    ></app-pagination>
+  </ng-container>
+</div>

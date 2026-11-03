@@ -1,0 +1,76 @@
+<div class="dashboard-page form-page">
+  <div class="dashboard-header">
+    <h1>{{ isEditMode() ? 'Edit Plan' : 'New Membership Plan' }}</h1>
+    <a class="btn-refresh" routerLink="/memberships/plans">← Back to Plans</a>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">{{ errorMessage() }}</div>
+  <div class="dashboard-skeleton" *ngIf="isLoading()">Loading plan…</div>
+
+  <form *ngIf="!isLoading()" [formGroup]="form" (ngSubmit)="onSubmit()" class="member-form-card" novalidate>
+    <h3 class="form-section-title">Plan Details</h3>
+
+    <div class="form-field">
+      <label for="name">Plan Name</label>
+      <input id="name" type="text" formControlName="name" [class.invalid]="f.name.invalid && f.name.touched" />
+      <span class="field-error" *ngIf="f.name.invalid && f.name.touched">Plan name is required</span>
+    </div>
+
+    <div class="form-field">
+      <label for="description">Description <span class="field-hint">(optional)</span></label>
+      <textarea id="description" rows="3" formControlName="description"></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label for="billingCycle">Billing Cycle</label>
+        <select id="billingCycle" formControlName="billingCycle">
+          <option *ngFor="let cycle of billingCycleOptions" [value]="cycle">{{ billingCycleLabels[cycle] }}</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label for="price">Price (₹)</label>
+        <input
+          id="price"
+          type="number"
+          min="0"
+          formControlName="price"
+          [class.invalid]="f.price.invalid && f.price.touched"
+        />
+        <span class="field-error" *ngIf="f.price.invalid && f.price.touched">Enter a valid price</span>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label for="gstPercentage">GST % <span class="field-hint">(optional)</span></label>
+        <input id="gstPercentage" type="number" min="0" step="0.01" formControlName="gstPercentage" />
+      </div>
+      <div class="form-field">
+        <label for="maxMembers">Max Members <span class="field-hint">(optional cap)</span></label>
+        <input id="maxMembers" type="number" min="1" formControlName="maxMembers" />
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label style="display: flex; align-items: center; gap: 8px; font-weight: 500">
+        <input type="checkbox" formControlName="includesPersonalTraining" style="width: auto" />
+        Includes personal training
+      </label>
+    </div>
+
+    <div class="form-field" *ngIf="isEditMode()">
+      <label style="display: flex; align-items: center; gap: 8px; font-weight: 500">
+        <input type="checkbox" formControlName="active" style="width: auto" />
+        Plan is active (visible for new assignments)
+      </label>
+    </div>
+
+    <div class="form-actions">
+      <a routerLink="/memberships/plans" class="btn-secondary">Cancel</a>
+      <button type="submit" class="btn-primary btn-inline" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Saving…' : isEditMode() ? 'Save Changes' : 'Create Plan' }}
+      </button>
+    </div>
+  </form>
+</div>

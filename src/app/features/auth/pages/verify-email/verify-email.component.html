@@ -1,0 +1,33 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <span class="auth-brand-mark">FitFlow</span>
+    </div>
+
+    <div [ngSwitch]="state()">
+      <div *ngSwitchCase="'awaiting-link'">
+        <p class="auth-subtitle" style="text-align: center; margin-bottom: 20px">
+          We've sent a verification link to your email. Click it to activate your account.
+        </p>
+
+        <div class="auth-success" *ngIf="resendSent()">Verification email sent again — check your inbox.</div>
+
+        <button *ngIf="isAuthenticated()" type="button" class="btn-primary" (click)="resend()">
+          Resend Verification Email
+        </button>
+      </div>
+
+      <p *ngSwitchCase="'verifying'" class="auth-subtitle" style="text-align: center">Verifying your email…</p>
+
+      <div *ngSwitchCase="'success'">
+        <div class="auth-success">Your email has been verified successfully. You can now log in.</div>
+        <p class="auth-switch"><a routerLink="/auth/login">Go to login</a></p>
+      </div>
+
+      <div *ngSwitchCase="'error'">
+        <div class="auth-error">{{ errorMessage() }}</div>
+        <p class="auth-switch"><a routerLink="/auth/login">Back to login</a></p>
+      </div>
+    </div>
+  </div>
+</div>

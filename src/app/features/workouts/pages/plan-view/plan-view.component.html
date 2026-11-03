@@ -1,0 +1,87 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <h1>{{ plan()?.name || 'Workout Plan' }}</h1>
+    <a class="btn-secondary" *ngIf="plan() as p" [routerLink]="['/workouts/member', p.memberId]">← Back to Plans</a>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">
+    {{ errorMessage() }}
+  </div>
+
+  <div class="dashboard-skeleton" *ngIf="isLoading()">Loading plan…</div>
+
+  <ng-container *ngIf="plan() as p">
+    <div class="details-card" style="margin-bottom: 20px">
+      <div class="details-grid">
+        <div>
+          <span class="details-label">Member</span>
+          <span class="details-value">{{ p.memberName }}</span>
+        </div>
+        <div>
+          <span class="details-label">Trainer</span>
+          <span class="details-value">{{ p.trainerName || '—' }}</span>
+        </div>
+        <div>
+          <span class="details-label">Period</span>
+          <span class="details-value">
+            {{ p.startDate ? (p.startDate | date: 'mediumDate') : 'Not set' }} –
+            {{ p.endDate ? (p.endDate | date: 'mediumDate') : 'Not set' }}
+          </span>
+        </div>
+        <div>
+          <span class="details-label">Status</span>
+          <span class="status-badge" [ngClass]="p.active ? 'badge-success' : 'badge-neutral'">
+            {{ p.active ? 'Active' : 'Deactivated' }}
+          </span>
+        </div>
+      </div>
+      <p class="field-hint" style="margin-top: 10px" *ngIf="p.description">{{ p.description }}</p>
+
+      <button
+        *ngIf="p.active && authService.currentUser()?.role !== Role.MEMBER"
+        type="button"
+        class="action-link danger"
+        style="margin-top: 12px"
+        (click)="showDeactivateConfirm.set(true)"
+      >
+        Deactivate Plan
+      </button>
+    </div>
+
+    <div class="details-card" *ngFor="let day of scheduleByDay()" style="margin-bottom: 14px">
+      <h3 class="form-section-title">{{ day.label }}</h3>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Exercise</th>
+            <th>Sets</th>
+            <th>Reps</th>
+            <th>Duration</th>
+            <th>Rest</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let ex of day.exercises" class="table-row">
+            <td>{{ ex.exerciseName }}</td>
+            <td>{{ ex.sets ?? '—' }}</td>
+            <td>{{ ex.reps ?? '—' }}</td>
+            <td>{{ ex.durationSeconds ? ex.durationSeconds + 's' : '—' }}</td>
+            <td>{{ ex.restSeconds ? ex.restSeconds + 's' : '—' }}</td>
+            <td>{{ ex.notes || '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-container>
+</div>
+
+<app-confirm-dialog
+  [open]="showDeactivateConfirm()"
+  title="Deactivate this plan?"
+  message="The member will no longer see this as an active workout plan. This cannot be undone."
+  confirmLabel="Deactivate"
+  [isProcessing]="isDeactivating()"
+  (confirm)="confirmDeactivate()"
+  (cancel)="showDeactivateConfirm.set(false)"
+></app-confirm-dialog>

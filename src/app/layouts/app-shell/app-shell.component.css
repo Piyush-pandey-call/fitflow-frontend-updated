@@ -1,0 +1,5 @@
+.app-shell{display:flex;min-height:100svh;background:#090b10}.app-shell-main{flex:1;min-width:0}.app-shell-content{padding:0}
+@media (max-width: 700px) {
+  .app-shell { flex-direction: column; }
+  .app-shell-content { padding-bottom: 84px; }
+}

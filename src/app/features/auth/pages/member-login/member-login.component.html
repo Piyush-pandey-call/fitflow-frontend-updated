@@ -1,0 +1,75 @@
+<div class="member-login-page">
+  <div class="member-login-hero">
+    <div class="member-login-hero-overlay"></div>
+    <div class="member-login-hero-content">
+      <div class="member-login-logo">
+        <span>FitFlow</span>
+        <span class="member-login-tag">Member</span>
+      </div>
+      <h1>Your gym, <span>in your pocket.</span></h1>
+      <p>Check in, track your attendance, follow your diet & workout plans, and stay on top of your membership — all in one place.</p>
+
+      <ul class="member-login-points">
+        <li>📍 One-tap gym check-in</li>
+        <li>🥗 AI-generated diet plans</li>
+        <li>💪 Your workout plans from your trainer</li>
+        <li>🎫 Track & renew your membership</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="member-login-form-section">
+    <div class="member-login-card">
+      <div class="member-login-brand">
+        <span class="member-login-badge">🏋️ Member Login</span>
+        <p class="member-login-subtitle">Sign in with the email &amp; password your gym gave you</p>
+      </div>
+
+      <div class="auth-alert" *ngIf="errorMessage()">{{ errorMessage() }}</div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        <div class="form-field">
+          <label for="email">Email</label>
+          <input id="email" type="email" formControlName="email" [class.invalid]="email.invalid && email.touched" autocomplete="username" />
+          <span class="field-error" *ngIf="email.invalid && email.touched">Enter a valid email</span>
+        </div>
+
+        <div class="form-field">
+          <label for="password">Password</label>
+          <div class="password-input-wrap">
+            <input
+              id="password"
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password"
+              [class.invalid]="password.invalid && password.touched"
+              autocomplete="current-password"
+            />
+            <button type="button" class="password-toggle-btn" (click)="togglePasswordVisibility()" tabindex="-1">
+              {{ showPassword() ? 'Hide' : 'Show' }}
+            </button>
+          </div>
+          <span class="field-error" *ngIf="password.invalid && password.touched">Password is required</span>
+        </div>
+
+        <div class="member-login-links">
+          <a routerLink="/auth/forgot-password">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn-member-submit" [disabled]="isSubmitting()">
+          {{ isSubmitting() ? 'Signing in…' : 'Sign In' }}
+        </button>
+      </form>
+
+      <p class="member-login-footer">
+        Not a member yet? Your gym owner needs to add you first — ask them for your login details.
+      </p>
+      <p class="member-login-footer">
+        If your details are rejected, confirm that your gym created your account with this email, then use
+        <a routerLink="/auth/forgot-password">Forgot password?</a> to reset your password.
+      </p>
+      <p class="member-login-footer">
+        Are you a gym owner? <a routerLink="/auth/login">Sign in here</a>
+      </p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,22 @@
+.pending-card {
+  max-width: 520px;
+  margin: 80px auto 0;
+  background: #fff;
+  border: 1px solid var(--ff-border, #e5e7eb);
+  border-radius: var(--ff-radius, 10px);
+  padding: 32px;
+  text-align: center;
+}
+
+.pending-card h2 {
+  margin: 0 0 12px;
+  font-size: 18px;
+  color: var(--ff-text, #111827);
+}
+
+.pending-card p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ff-text-muted, #6b7280);
+}

@@ -1,0 +1,57 @@
+/* Shared card/form/schedule-row layout classes live in src/styles/global.css */
+
+.ai-toggle-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 14px;
+}
+
+.btn-ai {
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.btn-ai:hover {
+  filter: brightness(1.06);
+}
+
+.ai-generator-owner {
+  background: #1a1230;
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  border-radius: 16px;
+  padding: 22px 24px;
+  margin-bottom: 20px;
+}
+
+.ai-generator-owner h3 {
+  margin: 0 0 4px;
+  color: #c4b5fd;
+}
+
+.ai-generator-sub {
+  margin: 0 0 18px;
+  font-size: 0.88rem;
+  color: var(--ff-text-muted, #9096a3);
+}
+
+.ai-owner-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.btn-ai-generate {
+  padding: 12px 22px;
+}
+
+.btn-ai-generate:disabled {
+  opacity: 0.7;
+  cursor: default;
+}

@@ -1,0 +1,14 @@
+<div class="dashboard-page">
+  <div class="pending-card">
+    <h2>Dashboard coming soon</h2>
+    <p>
+      Hi {{ authService.currentUser()?.fullName }}, the
+      <strong>{{ authService.currentUser()?.role }}</strong> dashboard isn't built on the backend yet - only the Gym
+      Owner and Super Admin dashboards are available right now. Once that API endpoint exists, this page will be
+      swapped out for the real thing.
+    </p>
+    <a routerLink="/profile" class="btn-primary btn-inline" style="margin-top: 16px; display: inline-block">
+      Go to My Profile
+    </a>
+  </div>
+</div>

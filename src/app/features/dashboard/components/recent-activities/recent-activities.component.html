@@ -1,0 +1,19 @@
+<div class="activities-card">
+  <h3 class="chart-title">Recent Activity</h3>
+
+  <div class="chart-empty" *ngIf="!activities?.length">Nothing to show yet.</div>
+
+  <ul class="activity-list" *ngIf="activities?.length">
+    <li class="activity-item" *ngFor="let activity of activities">
+      <span class="activity-icon" [ngClass]="iconFor(activity.type).tone" aria-hidden="true">
+        <svg viewBox="0 0 24 24" focusable="false">
+          <path [attr.d]="iconFor(activity.type).path" />
+        </svg>
+      </span>
+      <div class="activity-body">
+        <span class="activity-desc">{{ activity.description }}</span>
+        <span class="activity-time">{{ timeAgo(activity.timestamp) }}</span>
+      </div>
+    </li>
+  </ul>
+</div>

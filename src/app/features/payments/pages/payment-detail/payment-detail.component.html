@@ -1,0 +1,98 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <h1>Payment Details</h1>
+    <a class="btn-secondary" routerLink="/payments">← Back to Payments</a>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">{{ errorMessage() }}</div>
+  <div class="dashboard-skeleton" *ngIf="isLoading()">Loading payment…</div>
+
+  <ng-container *ngIf="payment() as p">
+    <div class="details-card" style="margin-bottom: 20px">
+      <div class="details-grid">
+        <div>
+          <span class="details-label">Member</span>
+          <span class="details-value">{{ p.memberName }}</span>
+        </div>
+        <div>
+          <span class="details-label">Amount</span>
+          <span class="details-value">{{ formatAmount(p.amount, p.currency) }}</span>
+        </div>
+        <div>
+          <span class="details-label">GST</span>
+          <span class="details-value">{{ p.gstAmount ? formatAmount(p.gstAmount, p.currency) : '—' }}</span>
+        </div>
+        <div>
+          <span class="details-label">Method</span>
+          <span class="details-value">{{ methodLabels[p.method] }}</span>
+        </div>
+        <div>
+          <span class="details-label">Status</span>
+          <span
+            class="status-badge"
+            [ngClass]="{
+              'badge-success': p.status === PaymentStatus.SUCCESS,
+              'badge-warning': p.status === PaymentStatus.PENDING,
+              'badge-primary': p.status === PaymentStatus.REFUNDED || p.status === PaymentStatus.PARTIALLY_REFUNDED,
+              'badge-neutral': p.status === PaymentStatus.FAILED
+            }"
+          >
+            {{ statusLabels[p.status] }}
+          </span>
+        </div>
+        <div>
+          <span class="details-label">Invoice Number</span>
+          <span class="details-value">{{ p.invoiceNumber || '—' }}</span>
+        </div>
+        <div>
+          <span class="details-label">Date</span>
+          <span class="details-value">{{ p.createdAt | date: 'medium' }}</span>
+        </div>
+      </div>
+
+      <div style="margin-top: 16px; display: flex; gap: 10px">
+        <button type="button" class="btn-secondary" [disabled]="isDownloading()" (click)="downloadInvoice()">
+          {{ isDownloading() ? 'Downloading…' : '⬇ Download Invoice' }}
+        </button>
+        <button
+          *ngIf="authService.currentUser()?.role === Role.GYM_OWNER && p.status === PaymentStatus.SUCCESS"
+          type="button"
+          class="btn-secondary"
+          (click)="showRefundForm.set(!showRefundForm())"
+        >
+          {{ showRefundForm() ? 'Cancel' : 'Process Refund' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="details-card" *ngIf="showRefundForm()">
+      <h3 class="form-section-title">Process Refund</h3>
+      <form [formGroup]="refundForm" (ngSubmit)="submitRefund()" novalidate>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="amount">Refund Amount</label>
+            <input
+              id="amount"
+              type="number"
+              step="0.01"
+              min="0"
+              formControlName="amount"
+              [class.invalid]="f.amount.invalid && f.amount.touched"
+            />
+            <span class="field-error" *ngIf="f.amount.invalid && f.amount.touched">Enter a valid amount</span>
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="reason">Reason</label>
+          <input id="reason" type="text" formControlName="reason" [class.invalid]="f.reason.invalid && f.reason.touched" />
+          <span class="field-error" *ngIf="f.reason.invalid && f.reason.touched">Reason is required</span>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary btn-inline" [disabled]="isSubmittingRefund()">
+            {{ isSubmittingRefund() ? 'Processing…' : 'Confirm Refund' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </ng-container>
+</div>

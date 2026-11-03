@@ -1,0 +1,30 @@
+<div class="expired-page">
+  <div class="dashboard-header">
+    <div>
+      <h1>Your trial has ended</h1>
+      <p class="page-subtitle">Your data is safe. Choose a plan to keep running your gym.</p>
+    </div>
+  </div>
+
+  <div class="expired-card">
+    <span class="expired-badge">TRIAL ENDED</span>
+    <h2>Keep your gym moving.</h2>
+    <p>
+      Your 7-day FitFlow trial has ended. Your gym data is safe. Choose a plan to continue
+      managing your gym — member records, check-in history and payment records all remain
+      saved in FitFlow.
+    </p>
+    <div class="expired-actions">
+      <button type="button" class="btn-expired-primary" (click)="goToPricing()">View paid plans</button>
+      <a routerLink="/support" class="btn-expired-secondary">Contact support</a>
+    </div>
+  </div>
+
+  <div class="quick-plan-grid">
+    <div class="quick-plan-card" *ngFor="let p of quickPlans">
+      <span class="quick-plan-label">{{ p.label }}</span>
+      <div class="quick-plan-price">{{ p.price }}</div>
+      <a routerLink="/billing/pricing" class="quick-plan-link">Select plan →</a>
+    </div>
+  </div>
+</div>

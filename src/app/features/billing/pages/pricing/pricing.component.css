@@ -1,0 +1,207 @@
+.pricing-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.checkout-notice {
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  color: #c4b5fd;
+  font-size: 0.9rem;
+}
+
+.error-notice {
+  color: #fecaca;
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.subscription-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 24px;
+  border: 1px solid rgba(167, 139, 250, 0.35);
+  border-radius: 14px;
+  background: linear-gradient(120deg, rgba(139, 92, 246, 0.15), rgba(20, 22, 28, 0.96));
+}
+
+.status-label {
+  color: #a78bfa;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.subscription-status h2 {
+  margin: 7px 0 4px;
+  color: #f4f4f6;
+}
+
+.subscription-status p,
+.subscription-period span {
+  margin: 0;
+  color: #a3a6b2;
+  font-size: 0.9rem;
+}
+
+.subscription-period {
+  display: grid;
+  gap: 5px;
+  text-align: right;
+}
+
+.subscription-period strong {
+  color: #f4f4f6;
+}
+
+.tier-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
+  gap: 22px;
+}
+
+.tier-card {
+  background: #14161c;
+  border: 1px solid #2b2d38;
+  border-radius: 18px;
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.tier-badge {
+  align-self: flex-start;
+  padding: 5px 12px;
+  border-radius: 999px;
+  color: #c4b5fd;
+  background: rgba(139, 92, 246, 0.12);
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.tier-card h2 {
+  margin: 18px 0 8px;
+  font-size: 1.45rem;
+  color: #f4f4f6;
+}
+
+.plan-description {
+  min-height: 42px;
+  margin: 0;
+  color: #a3a6b2;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.tier-features {
+  list-style: none;
+  margin: 20px 0 24px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-grow: 1;
+}
+
+.tier-features li {
+  padding-left: 18px;
+  position: relative;
+  color: #c8cad1;
+  font-size: 0.88rem;
+}
+
+.tier-features li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #a78bfa;
+}
+
+.billing-options {
+  display: grid;
+  gap: 12px;
+}
+
+.billing-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #30323e;
+  border-radius: 12px;
+  background: #101116;
+}
+
+.billing-option > div {
+  display: grid;
+  gap: 5px;
+}
+
+.billing-option span {
+  color: #9096a3;
+  font-size: 0.8rem;
+}
+
+.billing-option strong {
+  color: #f4f4f6;
+  font-size: 1.05rem;
+}
+
+.btn-tier {
+  border: none;
+  border-radius: 9px;
+  padding: 10px 12px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+  color: #0a0b0f;
+  transition: filter 0.15s ease, transform 0.15s ease;
+}
+
+.btn-tier:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.btn-tier-monthly {
+  background: #22d3ee;
+}
+
+.btn-tier-yearly {
+  background: #ff526d;
+}
+
+.pricing-footnote {
+  color: #9096a3;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+  .subscription-status {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .subscription-period {
+    text-align: left;
+  }
+
+  .billing-option {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .btn-tier {
+    width: 100%;
+  }
+}

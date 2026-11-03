@@ -1,0 +1,65 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <h1>Diet Plans<ng-container *ngIf="member() as m"> — {{ m.fullName }}</ng-container></h1>
+    <div style="display: flex; gap: 10px">
+      <a
+        *ngIf="authService.currentUser()?.role !== Role.MEMBER"
+        class="btn-primary btn-inline"
+        [routerLink]="['/diet/member', memberId, 'new']"
+      >
+        + New Plan
+      </a>
+      <a class="btn-secondary" *ngIf="member() as m" [routerLink]="['/members', m.id]">← Back to Member</a>
+    </div>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">
+    {{ errorMessage() }}
+    <button class="btn-retry" (click)="load()">Retry</button>
+  </div>
+
+  <div class="dashboard-skeleton" *ngIf="isLoading() && !pageData()">Loading plans…</div>
+
+  <ng-container *ngIf="pageData() as page">
+    <app-empty-state
+      *ngIf="page.content.length === 0"
+      icon="🥗"
+      title="No diet plans yet"
+      message="Create the first plan for this member."
+    ></app-empty-state>
+
+    <table class="data-table" *ngIf="page.content.length > 0">
+      <thead>
+        <tr>
+          <th>Plan</th>
+          <th>Trainer</th>
+          <th>Daily Target</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let plan of page.content" class="table-row" [routerLink]="['/diet/plan', plan.id]">
+          <td>{{ plan.name }}</td>
+          <td>{{ plan.trainerName || '—' }}</td>
+          <td>{{ plan.dailyCalorieTarget ? plan.dailyCalorieTarget + ' kcal' : '—' }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="plan.active ? 'badge-success' : 'badge-neutral'">
+              {{ plan.active ? 'Active' : 'Deactivated' }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <app-pagination
+      *ngIf="page.content.length > 0"
+      [pageNumber]="page.pageNumber"
+      [totalPages]="page.totalPages"
+      [totalElements]="page.totalElements"
+      [pageSize]="page.pageSize"
+      [first]="page.first"
+      [last]="page.last"
+      (pageChange)="onPageChange($event)"
+    ></app-pagination>
+  </ng-container>
+</div>

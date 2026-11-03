@@ -1,0 +1,41 @@
+<div class="qr-page">
+  <div class="qr-card" (click)="focusInput()">
+    <div class="qr-icon">📷</div>
+    <h1>Scan Member QR Code</h1>
+    <p class="qr-hint">Point the scanner at the member's QR badge. This box stays focused - just scan.</p>
+
+    <input
+      #scanInput
+      type="text"
+      class="qr-input"
+      [(ngModel)]="scanValue"
+      (keyup.enter)="onScan()"
+      (blur)="focusInput()"
+      autocomplete="off"
+      placeholder="Waiting for scan…"
+    />
+
+    <div class="qr-status success" *ngIf="lastCheckIn() as last">
+      ✅ {{ last.memberName }} checked in at {{ last.checkInTime | date: 'shortTime' }}
+    </div>
+
+    <div class="qr-status error" *ngIf="errorMessage()">
+      ❌ {{ errorMessage() }}
+    </div>
+  </div>
+
+  <div class="qr-recent" *ngIf="recentCheckIns().length > 0">
+    <h3 class="form-section-title">Recent Check-Ins (this session)</h3>
+    <ul>
+      <li *ngFor="let record of recentCheckIns()">
+        <img
+          [src]="record.memberProfileImageUrl || 'https://api.dicebear.com/7.x/initials/svg?seed=' + record.memberName"
+          class="member-avatar"
+          alt=""
+        />
+        <span>{{ record.memberName }}</span>
+        <span class="qr-recent-time">{{ record.checkInTime | date: 'shortTime' }}</span>
+      </li>
+    </ul>
+  </div>
+</div>

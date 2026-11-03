@@ -1,0 +1,71 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <div><h1>Payments</h1><p class="page-subtitle">Track gym collections, invoices and payment status.</p></div>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">
+    {{ errorMessage() }}
+    <button class="btn-retry" (click)="load()">Retry</button>
+  </div>
+
+<div class="metric-strip"><div class="metric-tile"><span>REVENUE THIS MONTH</span><strong>{{overview() ? (overview()!.revenueThisMonth | currency:'INR':'symbol':'1.0-0') : '—'}}</strong></div><div class="metric-tile"><span>PAYMENTS · CURRENT FILTER</span><strong>{{pageData()?.totalElements ?? '—'}}</strong></div><div class="metric-tile"><span>ACTIVE MEMBERSHIPS</span><strong>{{overview()?.activeMemberships ?? '—'}}</strong></div></div>
+  <div class="list-toolbar">
+    <select class="status-filter" [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()">
+      <option value="">All statuses</option>
+      <option *ngFor="let s of statusOptions" [value]="s">{{ statusLabels[s] }}</option>
+    </select>
+    <span class="status-badge badge-primary" *ngIf="memberIdFilter">
+      Filtered to one member
+      <button type="button" style="margin-left: 6px; background: none; border: none; cursor: pointer; color: inherit" (click)="clearMemberFilter()">✕</button>
+    </span>
+  </div>
+
+  <div class="dashboard-skeleton" *ngIf="isLoading() && !pageData()">Loading payments…</div>
+
+  <ng-container *ngIf="pageData() as page">
+    <app-empty-state
+      *ngIf="page.content.length === 0"
+      icon="💳"
+      title="No payments found"
+      message="Payments will appear here once recorded."
+    ></app-empty-state>
+
+    <table class="data-table" *ngIf="page.content.length > 0">
+      <thead>
+        <tr>
+          <th>Member</th>
+          <th>Amount</th>
+          <th>Method</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of page.content" class="table-row" [routerLink]="['/payments', p.id]">
+          <td>{{ p.memberName }}</td>
+          <td>{{ formatAmount(p.amount, p.currency) }}</td>
+          <td>{{ p.method }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="statusTone(p.status)">{{ statusLabels[p.status] }}</span>
+          </td>
+          <td>{{ p.createdAt | date: 'mediumDate' }}</td>
+          <td class="actions-cell">
+            <a class="action-link" [routerLink]="['/payments', p.id]" (click)="$event.stopPropagation()">View</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <app-pagination
+      *ngIf="page.content.length > 0"
+      [pageNumber]="page.pageNumber"
+      [totalPages]="page.totalPages"
+      [totalElements]="page.totalElements"
+      [pageSize]="page.pageSize"
+      [first]="page.first"
+      [last]="page.last"
+      (pageChange)="onPageChange($event)"
+    ></app-pagination>
+  </ng-container>
+</div>

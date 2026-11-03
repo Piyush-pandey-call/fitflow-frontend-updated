@@ -1,0 +1,92 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <h1>Exercise Library</h1>
+    <button
+      *ngIf="authService.currentUser()?.role !== Role.MEMBER"
+      type="button"
+      class="btn-primary btn-inline"
+      (click)="showAddForm.set(!showAddForm())"
+    >
+      {{ showAddForm() ? 'Cancel' : '+ Add Exercise' }}
+    </button>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">
+    {{ errorMessage() }}
+    <button class="btn-retry" (click)="load()">Retry</button>
+  </div>
+
+  <div class="details-card" style="margin-bottom: 20px" *ngIf="showAddForm()">
+    <h3 class="form-section-title">New Exercise</h3>
+    <div class="form-row">
+      <div class="form-field">
+        <label for="name">Name</label>
+        <input id="name" type="text" [formControl]="f.name" [class.invalid]="f.name.invalid && f.name.touched" />
+      </div>
+      <div class="form-field">
+        <label for="muscleGroup">Muscle Group <span class="field-hint">(optional)</span></label>
+        <input id="muscleGroup" type="text" [formControl]="f.muscleGroup" placeholder="e.g. Chest, Legs, Back" />
+      </div>
+    </div>
+    <div class="form-field">
+      <label for="description">Description <span class="field-hint">(optional)</span></label>
+      <textarea id="description" rows="3" [formControl]="f.description"></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label for="videoUrl">Video URL <span class="field-hint">(optional)</span></label>
+        <input id="videoUrl" type="text" [formControl]="f.videoUrl" />
+      </div>
+      <div class="form-field">
+        <label for="imageUrl">Image URL <span class="field-hint">(optional)</span></label>
+        <input id="imageUrl" type="text" [formControl]="f.imageUrl" />
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="button" class="btn-primary btn-inline" [disabled]="isSubmitting()" (click)="submitNewExercise()">
+        {{ isSubmitting() ? 'Saving…' : 'Add Exercise' }}
+      </button>
+    </div>
+  </div>
+
+  <app-search-bar placeholder="Search exercises…" (searchChange)="onSearchChange($event)"></app-search-bar>
+
+  <div class="dashboard-skeleton" *ngIf="isLoading()">Loading exercises…</div>
+
+  <ng-container *ngIf="!isLoading()">
+    <app-empty-state
+      *ngIf="exercises().length === 0"
+      icon="💪"
+      title="No exercises found"
+      [message]="searchTerm() ? 'Try a different search term.' : 'Add your first exercise to build the library.'"
+    ></app-empty-state>
+
+    <div class="exercise-grid" *ngIf="exercises().length > 0" style="margin-top: 16px">
+      <div class="details-card exercise-card" *ngFor="let ex of exercises()">
+        <img *ngIf="ex.imageUrl" [src]="ex.imageUrl" class="exercise-image" alt="" />
+        <h3 class="exercise-name">{{ ex.name }}</h3>
+        <span class="status-badge badge-primary" *ngIf="ex.muscleGroup">{{ ex.muscleGroup }}</span>
+        <p class="field-hint" *ngIf="ex.description">{{ ex.description }}</p>
+        <a *ngIf="ex.videoUrl" [href]="ex.videoUrl" target="_blank" rel="noopener" class="action-link">Watch video</a>
+        <button
+          *ngIf="authService.currentUser()?.role !== Role.MEMBER"
+          type="button"
+          class="action-link danger"
+          (click)="deleteTarget.set(ex)"
+        >
+          Remove
+        </button>
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+<app-confirm-dialog
+  [open]="!!deleteTarget()"
+  title="Remove this exercise?"
+  [message]="'This removes ' + (deleteTarget()?.name || 'this exercise') + ' from the library.'"
+  confirmLabel="Remove"
+  [isProcessing]="isDeleting()"
+  (confirm)="confirmDelete()"
+  (cancel)="deleteTarget.set(null)"
+></app-confirm-dialog>

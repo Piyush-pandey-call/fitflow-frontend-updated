@@ -1,0 +1,60 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <h1>Members <ng-container *ngIf="plan() as p">— {{ p.name }}</ng-container></h1>
+    <a class="btn-secondary" routerLink="/memberships/plans">← Back to Plans</a>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">
+    {{ errorMessage() }}
+    <button class="btn-retry" (click)="load()">Retry</button>
+  </div>
+
+  <div class="dashboard-skeleton" *ngIf="isLoading()">Loading members…</div>
+
+  <div class="plan-summary-bar" *ngIf="plan() as p">
+    <span><strong>{{ formatPrice(p.price) }}</strong> / plan</span>
+    <span>{{ p.activeSubscriberCount }} active subscriber{{ p.activeSubscriberCount === 1 ? '' : 's' }}</span>
+    <span>{{ pageData()?.totalElements || 0 }} total (current + past)</span>
+  </div>
+
+  <app-empty-state
+    *ngIf="!isLoading() && pageData() && pageData()!.content.length === 0"
+    icon="👥"
+    title="No members on this plan yet"
+    message="Once you assign this plan to a member, they'll show up here."
+  ></app-empty-state>
+
+  <table class="data-table" *ngIf="!isLoading() && pageData() && pageData()!.content.length > 0">
+    <thead>
+      <tr>
+        <th>Member</th>
+        <th>Status</th>
+        <th>Period</th>
+        <th>Price Paid</th>
+        <th>Auto-Renew</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let m of pageData()!.content">
+        <td>
+          <a class="action-link" [routerLink]="['/members', m.memberId]">{{ m.memberName }}</a>
+        </td>
+        <td><span class="status-badge" [ngClass]="statusTone(m.status)">{{ statusLabels[m.status] }}</span></td>
+        <td>{{ formatDate(m.startDate) }} – {{ formatDate(m.endDate) }}</td>
+        <td>{{ formatPrice(m.pricePaid) }}</td>
+        <td>{{ m.autoRenew ? 'On' : 'Off' }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <app-pagination
+    *ngIf="pageData() && pageData()!.content.length > 0"
+    [pageNumber]="pageData()!.pageNumber"
+    [totalPages]="pageData()!.totalPages"
+    [totalElements]="pageData()!.totalElements"
+    [pageSize]="pageSize"
+    [first]="pageData()!.first"
+    [last]="pageData()!.last"
+    (pageChange)="onPageChange($event)"
+  ></app-pagination>
+</div>

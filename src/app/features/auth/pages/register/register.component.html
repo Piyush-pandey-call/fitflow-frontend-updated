@@ -1,0 +1,50 @@
+<div class="register-page"><section class="hero-section"><div class="hero-content"><a class="hero-logo" routerLink="/">FitFlow</a><h1>Get your gym<span>moving in 7 days.</span></h1><p>Free trial. No card required.</p><ul class="hero-bullet-list"><li>Your members stay organized</li><li>Check-ins take seconds</li><li>Know your revenue at a glance</li></ul></div></section><section class="form-section"><div class="form-card"><div class="form-header"><h2>Create your gym account</h2></div><div class="auth-error" *ngIf="errorMessage()">{{errorMessage()}}</div><form class="auth-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate><div class="form-row"><div class="form-field"><label for="gymName">GYM NAME</label><input id="gymName" formControlName="gymName" placeholder="Fit Nation" autocomplete="organization" /><span class="field-error" *ngIf="f.gymName.invalid && f.gymName.touched">Gym name is required.</span></div><div class="form-field"><label for="gymType">GYM TYPE</label><select id="gymType" formControlName="gymType"><option *ngFor="let opt of gymTypeOptions" [value]="opt.value">{{opt.label}}</option></select></div></div><div class="form-field"><label for="ownerFullName">OWNER FULL NAME</label><input id="ownerFullName" formControlName="ownerFullName" placeholder="Piyush Pandey" autocomplete="name" /><span class="field-error" *ngIf="f.ownerFullName.invalid && f.ownerFullName.touched">Owner name is required.</span></div><div class="form-field"><label for="email">EMAIL ADDRESS</label><input id="email" type="email" formControlName="email" placeholder="owner@fitnation.in" autocomplete="email" /><span class="field-error" *ngIf="f.email.invalid && f.email.touched">Enter a valid email.</span></div><div class="form-row"><div class="form-field"><label for="mobileNumber">MOBILE NUMBER</label><input id="mobileNumber" type="tel" formControlName="mobileNumber" placeholder="9876543210" autocomplete="tel" /><span class="field-error" *ngIf="f.mobileNumber.invalid && f.mobileNumber.touched">Enter a valid mobile number.</span></div><div class="form-field"><label for="city">CITY</label><input id="city" formControlName="city" placeholder="Mumbai" autocomplete="address-level2" /></div></div><div class="form-field"><label for="password">PASSWORD</label><div class="password-wrapper"><input id="password" [type]="showPassword()?'text':'password'" formControlName="password" placeholder="Create a strong password" autocomplete="new-password" /><button type="button" class="toggle-visibility" (click)="togglePasswordVisibility()">{{showPassword()?'Hide':'Show'}}</button></div><span class="field-error" *ngIf="f.password.invalid && f.password.touched">Use at least 8 characters, uppercase, lowercase and a number.</span></div><button type="submit" class="btn-primary" [disabled]="isSubmitting()">{{isSubmitting()?'Starting your trial…':'Start my 7-day free trial'}}</button><div class="auth-switch"><p>Already have an account? <a routerLink="/auth/login">Sign in</a></p></div></form></div></section>  <div
+    class="auth-success-overlay"
+    *ngIf="showSuccess()"
+  >
+
+    <div class="auth-success-dialog">
+
+      <div class="auth-icon-success">
+
+        ✓
+
+      </div>
+
+      <h2>
+
+        Welcome to FitFlow 🎉
+
+      </h2>
+
+      <p>
+
+        Your gym has been successfully registered.
+
+        <br><br>
+
+        You can now sign in and start managing members,
+        trainers, attendance, billing and workouts from
+        your professional dashboard.
+
+      </p>
+
+      <button
+
+        type="button"
+
+        class="btn-primary"
+
+        (click)="goToLogin()"
+
+      >
+
+        Go To Login
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

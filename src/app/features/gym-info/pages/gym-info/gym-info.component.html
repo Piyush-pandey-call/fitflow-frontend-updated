@@ -1,0 +1,91 @@
+<main class="gym-guide">
+  <header class="guide-nav">
+    <a class="guide-brand" routerLink="/">
+      <img src="assets/fitflow-mark.svg" alt="" />
+      <span>FitFlow</span>
+    </a>
+    <nav aria-label="Gym information">
+      <a
+        *ngFor="let link of links"
+        [routerLink]="link.path"
+        [class.active]="currentPage() === link.path.substring('/gym/'.length)"
+      >{{ link.label }}</a>
+    </nav>
+    <div class="guide-actions">
+      <a class="guide-member" routerLink="/auth/member-login">Member Login</a>
+      <a class="guide-join" routerLink="/auth/register">Create a gym account</a>
+    </div>
+  </header>
+
+  <section class="guide-hero guide-reveal">
+    <div class="guide-copy">
+      <span class="guide-eyebrow">{{ page().eyebrow }}</span>
+      <h1>{{ page().title }}</h1>
+      <p>{{ page().intro }}</p>
+      <div class="guide-hero-actions">
+        <a class="guide-join" routerLink="/auth/member-login">Member Login</a>
+        <a class="guide-secondary" routerLink="/auth/register">Set up your gym</a>
+      </div>
+    </div>
+    <figure class="guide-image">
+      <img [src]="page().image" [alt]="page().imageAlt" />
+      <figcaption>{{ page().imageAlt }}</figcaption>
+    </figure>
+  </section>
+
+  <section class="guide-highlights guide-reveal" aria-label="At a glance">
+    <article class="guide-highlight" *ngFor="let highlight of page().highlights; let i = index">
+      <span class="guide-card-number">0{{ i + 1 }}</span>
+      <h2>{{ highlight.title }}</h2>
+      <p>{{ highlight.description }}</p>
+    </article>
+  </section>
+
+  <section class="guide-content guide-reveal" aria-label="Gym guide">
+    <div class="guide-section-heading">
+      <span class="guide-eyebrow">{{ page().eyebrow }}</span>
+      <h2>Explore the details and make the experience your own.</h2>
+      <p>Every facility is a little different. Use these ideas to understand your options and choose the next step that works for you.</p>
+    </div>
+    <div class="guide-cards">
+      <article class="guide-card" *ngFor="let section of page().sections; let i = index">
+        <span class="guide-card-number">0{{ i + 1 }}</span>
+        <h3>{{ section.title }}</h3>
+        <p>{{ section.description }}</p>
+      </article>
+    </div>
+    <aside class="guide-note">
+      <span aria-hidden="true">✦</span>
+      <p>{{ page().note }}</p>
+    </aside>
+  </section>
+
+  <section class="guide-next-steps guide-reveal" aria-labelledby="next-steps-heading">
+    <div class="guide-section-heading">
+      <span class="guide-eyebrow">A SIMPLE WAY TO BEGIN</span>
+      <h2 id="next-steps-heading">Make your next visit count.</h2>
+      <p>A few thoughtful questions can help you feel prepared before you start or change your routine.</p>
+    </div>
+    <div class="guide-next-grid">
+      <article class="guide-next-card" *ngFor="let step of page().nextSteps; let i = index">
+        <span aria-hidden="true">0{{ i + 1 }}</span>
+        <div>
+          <h3>{{ step.title }}</h3>
+          <p>{{ step.description }}</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="guide-footer guide-reveal">
+    <div>
+      <span class="guide-eyebrow">YOUR NEXT STEP</span>
+      <h2>Ready to make room for movement?</h2>
+      <p>Explore a local gym, ask questions, and choose what fits your needs.</p>
+    </div>
+    <div class="guide-footer-actions">
+      <a class="guide-join" routerLink="/auth/member-login">Member Login</a>
+      <a class="guide-secondary" routerLink="/auth/register">Sign up your gym</a>
+    </div>
+  </footer>
+</main>

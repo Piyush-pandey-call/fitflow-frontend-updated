@@ -1,0 +1,14 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <h1>Help &amp; FAQ</h1>
+    <div style="display: flex; gap: 10px">
+      <a routerLink="/support/new" class="btn-primary btn-inline">Contact Support</a>
+      <a routerLink="/support" class="btn-secondary">← Back to Tickets</a>
+    </div>
+  </div>
+
+  <div class="details-card" *ngFor="let item of faqs" style="margin-bottom: 12px">
+    <h3 class="form-section-title" style="margin-bottom: 6px">{{ item.question }}</h3>
+    <p class="details-value">{{ item.answer }}</p>
+  </div>
+</div>

@@ -1,0 +1,86 @@
+<div class="dashboard-page form-page">
+  <div class="dashboard-header">
+    <h1>New Workout Plan<ng-container *ngIf="member() as m"> — {{ m.fullName }}</ng-container></h1>
+    <a class="btn-secondary" *ngIf="member() as m" [routerLink]="['/workouts/member', m.id]">← Back to Plans</a>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">{{ errorMessage() }}</div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="member-form-card" novalidate>
+    <h3 class="form-section-title">Plan Details</h3>
+    <div class="form-field">
+      <label for="name">Plan Name</label>
+      <input id="name" type="text" formControlName="name" [class.invalid]="f.name.invalid && f.name.touched" />
+      <span class="field-error" *ngIf="f.name.invalid && f.name.touched">Plan name is required</span>
+    </div>
+
+    <div class="form-field">
+      <label for="description">Description <span class="field-hint">(optional)</span></label>
+      <textarea id="description" rows="2" formControlName="description"></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label for="trainerId">Trainer <span class="field-hint">(optional)</span></label>
+        <select id="trainerId" formControlName="trainerId">
+          <option value="">— None —</option>
+          <option *ngFor="let t of trainers()" [value]="t.id">{{ t.fullName }}</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label for="startDate">Start Date <span class="field-hint">(optional)</span></label>
+        <input id="startDate" type="date" formControlName="startDate" />
+      </div>
+      <div class="form-field">
+        <label for="endDate">End Date <span class="field-hint">(optional)</span></label>
+        <input id="endDate" type="date" formControlName="endDate" />
+      </div>
+    </div>
+
+    <h3 class="form-section-title">Weekly Schedule</h3>
+    <p class="field-hint" style="margin-bottom: 12px">Add exercises and assign each to a day of the week.</p>
+
+    <div class="schedule-row" *ngFor="let row of rows">
+      <select [(ngModel)]="row.dayOfWeek" [ngModelOptions]="{ standalone: true }" class="schedule-day">
+        <option *ngFor="let d of dayOptions" [value]="d">{{ dayLabels[d] }}</option>
+      </select>
+      <select [(ngModel)]="row.exerciseId" [ngModelOptions]="{ standalone: true }" class="schedule-exercise">
+        <option value="">Select exercise…</option>
+        <option *ngFor="let ex of exercises()" [value]="ex.id">{{ ex.name }}</option>
+      </select>
+      <input
+        type="number"
+        [(ngModel)]="row.sets"
+        [ngModelOptions]="{ standalone: true }"
+        placeholder="Sets"
+        class="schedule-number"
+        min="0"
+      />
+      <input
+        type="number"
+        [(ngModel)]="row.reps"
+        [ngModelOptions]="{ standalone: true }"
+        placeholder="Reps"
+        class="schedule-number"
+        min="0"
+      />
+      <input
+        type="text"
+        [(ngModel)]="row.notes"
+        [ngModelOptions]="{ standalone: true }"
+        placeholder="Notes (optional)"
+        class="schedule-notes"
+      />
+      <button type="button" class="action-link danger" (click)="removeRow(row.rowId)">✕</button>
+    </div>
+
+    <button type="button" class="btn-secondary" (click)="addRow()" style="margin-top: 8px">+ Add Exercise Row</button>
+
+    <div class="form-actions">
+      <a routerLink="/workouts/exercises" class="btn-secondary">Cancel</a>
+      <button type="submit" class="btn-primary btn-inline" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Creating…' : 'Create Plan' }}
+      </button>
+    </div>
+  </form>
+</div>

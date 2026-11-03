@@ -1,0 +1,117 @@
+<div class="dashboard-page form-page">
+  <div class="dashboard-header">
+    <h1>{{ isEditMode() ? 'Edit Trainer' : 'Add Trainer' }}</h1>
+    <a class="btn-refresh" routerLink="/trainers">← Back to Trainers</a>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">{{ errorMessage() }}</div>
+  <div class="dashboard-skeleton" *ngIf="isLoading()">Loading trainer…</div>
+
+  <form *ngIf="!isLoading()" [formGroup]="form" (ngSubmit)="onSubmit()" class="member-form-card" novalidate>
+    <div class="profile-image-row" *ngIf="isEditMode()">
+      <img
+        [src]="currentProfileImageUrl() || 'https://api.dicebear.com/7.x/initials/svg?seed=' + f.fullName.value"
+        class="profile-image-preview"
+        alt=""
+      />
+      <div>
+        <label class="file-upload-btn">
+          {{ isUploadingImage() ? 'Uploading…' : 'Change Photo' }}
+          <input type="file" accept="image/*" (change)="onFileSelected($event)" [disabled]="isUploadingImage()" hidden />
+        </label>
+        <p class="field-hint">JPG or PNG, uploaded immediately.</p>
+      </div>
+    </div>
+
+    <h3 class="form-section-title">Basic Information</h3>
+    <div class="form-row">
+      <div class="form-field">
+        <label for="fullName">Full Name</label>
+        <input
+          id="fullName"
+          type="text"
+          formControlName="fullName"
+          [class.invalid]="f.fullName.invalid && f.fullName.touched"
+        />
+        <span class="field-error" *ngIf="f.fullName.invalid && f.fullName.touched">Full name is required</span>
+      </div>
+      <div class="form-field">
+        <label for="mobileNumber">Mobile Number</label>
+        <input
+          id="mobileNumber"
+          type="tel"
+          formControlName="mobileNumber"
+          placeholder="+919876543210"
+          [class.invalid]="f.mobileNumber.invalid && f.mobileNumber.touched"
+        />
+        <span class="field-error" *ngIf="f.mobileNumber.invalid && f.mobileNumber.touched">
+          Enter a valid 10-15 digit number
+        </span>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label for="email">Email <span class="field-hint">(optional)</span></label>
+        <input id="email" type="email" formControlName="email" [class.invalid]="f.email.invalid && f.email.touched" />
+        <span class="field-error" *ngIf="f.email.invalid && f.email.touched">Enter a valid email</span>
+      </div>
+      <div class="form-field" *ngIf="!isEditMode()">
+        <label for="password">Login Password <span class="field-hint">(required with email)</span></label>
+        <input id="password" type="password" formControlName="password" minlength="6" maxlength="72" />
+        <span class="field-error" *ngIf="f.password.invalid && f.password.touched">Password must be at least 6 characters</span>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label for="experienceYears">Experience (years) <span class="field-hint">(optional)</span></label>
+        <input
+          id="experienceYears"
+          type="number"
+          min="0"
+          formControlName="experienceYears"
+          [class.invalid]="f.experienceYears.invalid && f.experienceYears.touched"
+        />
+      </div>
+    </div>
+
+    <div class="form-field" *ngIf="isEditMode()">
+      <label for="status">Status</label>
+      <select id="status" formControlName="status">
+        <option *ngFor="let s of statusOptions" [value]="s">{{ statusLabels[s] }}</option>
+      </select>
+    </div>
+
+    <h3 class="form-section-title">Certifications & Specializations</h3>
+    <div class="form-field">
+      <label>Certifications <span class="field-hint">(optional — press Enter to add)</span></label>
+      <app-tag-input
+        [tags]="certifications"
+        (tagsChange)="certifications = $event"
+        placeholder="e.g. ACE-CPT, NASM"
+      ></app-tag-input>
+    </div>
+    <div class="form-field">
+      <label>Specializations <span class="field-hint">(optional — press Enter to add)</span></label>
+      <app-tag-input
+        [tags]="specializations"
+        (tagsChange)="specializations = $event"
+        placeholder="e.g. Strength training, Yoga"
+      ></app-tag-input>
+    </div>
+
+    <div class="form-field">
+      <label for="bio">Bio <span class="field-hint">(optional)</span></label>
+      <textarea id="bio" rows="4" formControlName="bio"></textarea>
+      <span class="field-error" *ngIf="f.bio.invalid && f.bio.touched">Bio must be under 1000 characters</span>
+    </div>
+
+    <div class="form-actions">
+      <a routerLink="/trainers" class="btn-secondary">Cancel</a>
+      <button type="submit" class="btn-primary btn-inline" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Saving…' : isEditMode() ? 'Save Changes' : 'Add Trainer' }}
+      </button>
+    </div>
+  </form>
+</div>

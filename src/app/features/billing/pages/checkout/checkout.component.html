@@ -1,0 +1,79 @@
+<div class="dashboard-page checkout-page">
+  <div class="dashboard-header">
+    <div>
+      <h1>Complete your purchase</h1>
+      <p class="page-subtitle">Review your FitFlow subscription before secure payment.</p>
+    </div>
+  </div>
+
+  <div class="checkout-notice" *ngIf="isLoading()">Loading your selected plan…</div>
+
+  <div class="checkout-error" role="alert" *ngIf="errorMessage()">
+    <p>{{ errorMessage() }}</p>
+    <a class="action-link" routerLink="/billing/pricing">Back to plans</a>
+  </div>
+
+  <section class="payment-confirmed details-card" *ngIf="confirmation() as payment">
+    <div class="success-icon" aria-hidden="true">✓</div>
+    <p class="eyebrow">PAYMENT VERIFIED</p>
+    <h2>Your FitFlow access is active</h2>
+    <p>
+      {{ payment.planName }} plan payment of
+      {{ payment.amountPaid | currency:payment.currency:'symbol':'1.0-0' }} was verified by FitFlow.
+    </p>
+    <div class="confirmation-period">
+      <span>Access period</span>
+      <strong>{{ payment.currentPeriodStart | date:'mediumDate' }} – {{ payment.currentPeriodEnd | date:'mediumDate' }}</strong>
+    </div>
+    <a class="btn-primary" routerLink="/billing/pricing">View subscription</a>
+  </section>
+
+  <ng-container *ngIf="!confirmation()">
+    <div class="wellness-grid" *ngIf="plan() as selectedPlan">
+      <section class="details-card checkout-summary">
+        <p class="eyebrow">YOUR SUMMARY</p>
+        <h2>{{ selectedPlan.name }} · {{ cycle() === BillingCycle.YEARLY ? 'Yearly' : 'Monthly' }}</h2>
+        <div class="summary-row">
+          <span>Plan price</span>
+          <strong>{{ selectedPrice | currency:'INR':'symbol':'1.0-0' }}</strong>
+        </div>
+        <div class="summary-row">
+          <span>Billing cycle</span>
+          <span>{{ cycle() === BillingCycle.YEARLY ? '12 months' : '1 month' }}</span>
+        </div>
+        <hr>
+        <div class="summary-row total-row">
+          <strong>Total payable</strong>
+          <strong>{{ selectedPrice | currency:'INR':'symbol':'1.0-0' }}</strong>
+        </div>
+        <p class="fine-print">
+          The payment order and amount are created by FitFlow’s server. Your subscription activates only after
+          Razorpay confirms the payment.
+        </p>
+
+        <div class="checkout-error" role="alert" *ngIf="paymentError()">
+          {{ paymentError() }}
+        </div>
+
+        <button type="button" class="btn-primary pay-button" (click)="proceedToPay()"
+          [disabled]="isPaying() || !checkoutOrder()">
+          {{ isPaying() ? 'Processing secure payment…' : pendingVerification() ? 'Retry payment verification' : 'Proceed to Pay' }}
+        </button>
+      </section>
+
+      <section class="details-card next-steps">
+        <p class="eyebrow">SECURE PAYMENT</p>
+        <h2>Pay with UPI</h2>
+        <ol>
+          <li>Click <strong>Proceed to Pay</strong>.</li>
+          <li>Choose UPI in Razorpay. On desktop, scan the QR shown in its checkout using your UPI app.</li>
+          <li>FitFlow verifies the captured payment before updating access.</li>
+        </ol>
+        <p class="fine-print">
+          Your gym owner account is already signed in. Do not enter your FitFlow password into a payment screen.
+        </p>
+        <a class="action-link" routerLink="/billing/pricing">← Back to plans</a>
+      </section>
+    </div>
+  </ng-container>
+</div>

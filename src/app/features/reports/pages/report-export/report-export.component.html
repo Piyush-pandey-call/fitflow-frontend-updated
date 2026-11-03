@@ -1,0 +1,9 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <div><h1>Reports and analytics</h1><p class="page-subtitle">Understand your gym. Export the numbers that matter.</p></div>
+    <button class="btn-primary btn-inline" [disabled]="!!downloadingKey()" (click)="download(selectedType,'pdf')">Export PDF</button>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">{{ errorMessage() }}</div>
+
+<div class="metric-strip" *ngIf="overview() as d"><div class="metric-tile"><span>ACTIVE PLANS</span><strong>{{d.activeMemberships}}</strong></div><div class="metric-tile"><span>MEMBERS</span><strong>{{d.totalMembers}}</strong></div><div class="metric-tile"><span>TODAY'S CHECK-INS</span><strong>{{d.todaysAttendance}}</strong></div></div><div class="report-overview"><div><app-line-chart *ngIf="overview() as d" title="Monthly check-in trend" [data]="d.attendanceAnalytics" color="#4dccac"></app-line-chart></div><section class="details-card"><h3 class="form-section-title">DOWNLOAD REPORT</h3><div class="form-field"><label for="reportType">Report type</label><select id="reportType" [(ngModel)]="selectedType"><option *ngFor="let type of reportTypes" [value]="type">{{typeLabels[type]}}</option></select></div><div class="form-field" style="margin-top:18px"><label for="fromDate">From</label><input id="fromDate" type="date" [(ngModel)]="fromDate" /></div><div class="form-field" style="margin-top:18px"><label for="toDate">To</label><input id="toDate" type="date" [(ngModel)]="toDate" /></div><p class="field-hint">{{typeDescriptions[selectedType]}}</p><button type="button" class="btn-primary" style="width:100%;margin-top:15px" [disabled]="!!downloadingKey()" (click)="download(selectedType,'excel')">{{isDownloading(selectedType,'excel')?'Downloading…':'Download Excel'}}</button></section></div></div>

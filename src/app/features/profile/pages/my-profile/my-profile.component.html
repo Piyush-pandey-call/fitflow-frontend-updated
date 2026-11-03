@@ -1,0 +1,128 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <h1>My Profile</h1>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">{{ errorMessage() }}</div>
+  <div class="dashboard-skeleton" *ngIf="isLoading()">Loading profile…</div>
+
+  <ng-container *ngIf="!isLoading() && profile() as p">
+    <div class="details-layout">
+      <div class="details-card details-side">
+        <img
+          [src]="p.profileImageUrl && !profileImageLoadFailed()
+            ? p.profileImageUrl
+            : 'https://api.dicebear.com/7.x/initials/svg?seed=' + p.fullName"
+          class="details-avatar"
+          alt="Profile photo"
+          (error)="profileImageLoadFailed.set(true)"
+        />
+        <label class="file-upload-btn">
+          {{ isUploadingPhoto() ? 'Uploading…' : 'Change photo' }}
+          <input
+            type="file"
+            accept="image/jpeg,image/png"
+            (change)="onProfileImageSelected($event)"
+            [disabled]="isUploadingPhoto()"
+            hidden
+          />
+        </label>
+        <span class="field-hint">JPG or PNG</span>
+        <div class="dashboard-error" *ngIf="photoError()">{{ photoError() }}</div>
+        <div class="success-banner" *ngIf="photoSuccess()">Profile photo updated.</div>
+        <h2 class="details-name">{{ p.fullName }}</h2>
+        <span class="status-badge badge-primary">{{ p.role }}</span>
+      </div>
+
+      <div class="details-main">
+        <div class="details-card">
+          <h3 class="form-section-title">Account Details</h3>
+          <div class="details-grid">
+            <div>
+              <span class="details-label">Email</span>
+              <span class="details-value">{{ p.email }} {{ p.emailVerified ? '✓' : '(unverified)' }}</span>
+            </div>
+            <div>
+              <span class="details-label">Mobile</span>
+              <span class="details-value">{{ p.mobileNumber }}</span>
+            </div>
+            <div>
+              <span class="details-label">Status</span>
+              <span class="details-value">{{ p.status }}</span>
+            </div>
+            <div>
+              <span class="details-label">Last Login</span>
+              <span class="details-value">{{ p.lastLoginAt ? (p.lastLoginAt | date: 'medium') : '—' }}</span>
+            </div>
+            <div>
+              <span class="details-label">Member Since</span>
+              <span class="details-value">{{ p.createdAt | date: 'mediumDate' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="details-card">
+          <h3 class="form-section-title">Change Password</h3>
+
+          <div class="dashboard-error" *ngIf="passwordError()">{{ passwordError() }}</div>
+          <div class="success-banner" *ngIf="passwordSuccess()">Password changed successfully.</div>
+
+          <form [formGroup]="passwordForm" (ngSubmit)="submitPasswordChange()" novalidate>
+            <div class="form-field">
+              <label for="currentPassword">Current Password</label>
+              <input
+                id="currentPassword"
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="currentPassword"
+                [class.invalid]="pf.currentPassword.invalid && pf.currentPassword.touched"
+              />
+              <span class="field-error" *ngIf="pf.currentPassword.invalid && pf.currentPassword.touched">
+                Current password is required
+              </span>
+            </div>
+
+            <div class="form-field">
+              <label for="newPassword">New Password</label>
+              <input
+                id="newPassword"
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="newPassword"
+                [class.invalid]="pf.newPassword.invalid && pf.newPassword.touched"
+              />
+              <span class="field-hint" *ngIf="!(pf.newPassword.invalid && pf.newPassword.touched)">
+                Min 8 characters, with an uppercase letter, a lowercase letter, and a number.
+              </span>
+              <span class="field-error" *ngIf="pf.newPassword.invalid && pf.newPassword.touched">
+                Password must be 8+ characters with upper, lower and a digit
+              </span>
+            </div>
+
+            <div class="form-field">
+              <label for="confirmPassword">Confirm New Password</label>
+              <input
+                id="confirmPassword"
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="confirmPassword"
+                [class.invalid]="passwordForm.errors?.['passwordsMismatch'] && pf.confirmPassword.touched"
+              />
+              <span class="field-error" *ngIf="passwordForm.errors?.['passwordsMismatch'] && pf.confirmPassword.touched">
+                Passwords do not match
+              </span>
+            </div>
+
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 14px">
+              <input type="checkbox" [checked]="showPassword()" (change)="showPassword.set(!showPassword())" style="width: auto" />
+              Show passwords
+            </label>
+
+            <div class="form-actions">
+              <button type="submit" class="btn-primary btn-inline" [disabled]="isChangingPassword()">
+                {{ isChangingPassword() ? 'Changing…' : 'Change Password' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

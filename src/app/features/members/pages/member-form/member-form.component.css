@@ -1,0 +1,33 @@
+/* Shared form-page layout classes live in src/styles/global.css */
+
+.password-input-wrap {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+.password-input-wrap input {
+  flex: 1;
+}
+
+.password-toggle-btn {
+  padding: 0 0.9rem;
+  border: 1px solid var(--ff-border, #23262f);
+  border-radius: 6px;
+  background: var(--ff-bg-elevated, #15171e);
+  color: var(--ff-text, #f4f4f6);
+  cursor: pointer;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.password-toggle-btn:hover {
+  border-color: var(--ff-primary, #8b5cf6);
+  color: var(--ff-primary, #8b5cf6);
+}
+
+.password-field input:disabled {
+  background: var(--ff-bg-elevated, #15171e);
+  opacity: 0.6;
+  cursor: not-allowed;
+}

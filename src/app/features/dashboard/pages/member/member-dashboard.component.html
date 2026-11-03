@@ -1,0 +1,353 @@
+<div class="member-dash">
+  <div class="dashboard-error" *ngIf="errorMessage()">
+    {{ errorMessage() }}
+    <button class="btn-retry" (click)="load()">Retry</button>
+  </div>
+
+  <div class="dashboard-skeleton" *ngIf="isLoading()">Loading your dashboard…</div>
+
+  <ng-container *ngIf="!isLoading() && dashboard() as d">
+    <!-- ============ HERO ============ -->
+    <div class="dashboard-header"><div><h1>{{section()==='home' ? 'Welcome back, '+d.member.fullName.split(' ')[0] : section()==='membership' ? 'My membership' : section()==='attendance' ? 'My attendance' : section()==='payments' ? 'My payments' : section()==='diet' ? 'My diet plan' : 'My notifications'}}</h1><p class="page-subtitle">{{d.gymName || 'Your gym'}} · Your membership and progress</p></div></div>
+    <section class="member-hero" *ngIf="section()==='home'">
+      <div class="hero-main">
+        <div class="hero-identity">
+          <div>
+            <h2>{{d.member.currentPlanName || "Your membership"}}</h2>
+            <p class="hero-sub">
+              <span class="status-badge" [ngClass]="d.member.membershipActive ? 'badge-success' : 'badge-neutral'">
+                {{ d.member.membershipActive ? 'Membership Active' : 'No Active Membership' }}
+              </span>
+              <span *ngIf="d.member.currentPlanName">{{ d.member.currentPlanName }}</span>
+              <span *ngIf="d.member.membershipExpiryDate">
+                · expires {{ formatDate(d.member.membershipExpiryDate) }}
+                <ng-container *ngIf="daysUntil(d.member.membershipExpiryDate) as days">
+                  ({{ days > 0 ? days + ' days left' : 'expired' }})
+                </ng-container>
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <div class="hero-actions">
+          <button
+            type="button"
+            class="btn-checkin"
+            [class.checked]="checkedOutToday()"
+            [disabled]="isCheckingIn() || checkedOutToday()"
+            (click)="checkedInToday() ? checkOut() : checkIn()"
+          >
+            <span *ngIf="!isCheckingIn()">{{ checkedOutToday() ? 'Done for today ✓' : checkedInToday() ? 'Check out' : 'Check in now' }}</span>
+            <span *ngIf="isCheckingIn()">Please wait…</span>
+          </button>
+          <p class="hero-checkin-msg success" *ngIf="checkInMessage()">{{ checkInMessage() }}</p>
+          <p class="hero-checkin-msg error" *ngIf="checkInError()">{{ checkInError() }}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ STATS ============ -->
+    <section class="member-stats" *ngIf="section()==='home'">
+      <app-stats-card label="Check-ins" [value]="d.attendance.totalElements" tone="primary" hint="Check-ins on record"></app-stats-card>
+      <app-stats-card label="Workout plans" [value]="d.workouts.totalElements" tone="primary" hint="From your trainer"></app-stats-card><app-stats-card label="Diet plans" [value]="d.dietPlans.totalElements" tone="neutral" hint="Your nutrition plans"></app-stats-card>
+    </section>
+
+<div class="wellness-grid member-home-grid" *ngIf="section()==='home'"><section class="details-card"><h3 class="form-section-title">TODAY'S WORKOUT</h3><h2>{{d.workouts.content.length ? d.workouts.content[0].name : 'No workout assigned'}}</h2><p class="page-subtitle" *ngFor="let e of d.workouts.content[0]?.exercises?.slice(0,3)">{{e.exerciseName}} · {{e.sets || '—'}} × {{e.reps || '—'}}</p><p><a class="action-link" routerLink="/wellness">View workout and diet →</a></p></section><section class="details-card"><h3 class="form-section-title">UPCOMING</h3><h2>{{d.member.membershipExpiryDate ? 'Membership renewal' : 'Your next step'}}</h2><p class="page-subtitle">{{d.member.membershipExpiryDate ? (d.member.membershipExpiryDate | date:'mediumDate') : 'Ask your gym owner to assign a membership.'}}</p><p><a class="btn-primary btn-inline" routerLink="/dashboard/member" [queryParams]="{section:'membership'}">View my membership</a></p></section></div>
+    <!-- ============ MEMBERSHIP ============ -->
+    <section class="member-card" *ngIf="section()==='membership'">
+      <div class="member-card-header">
+        <h2>My Membership</h2>
+        <button type="button" class="btn-primary btn-inline" (click)="openRenewPanel()">Renew / Change Plan</button>
+      </div>
+
+      <div class="membership-current" *ngIf="d.currentMembership as cm; else noMembership">
+        <div>
+          <span class="plan-name">{{ cm.planName }}</span>
+          <span class="status-badge" [ngClass]="cm.status === 'ACTIVE' ? 'badge-success' : cm.status === 'PENDING_PAYMENT' ? 'badge-warning' : 'badge-neutral'">
+            {{ membershipStatusLabels[cm.status] }}
+          </span>
+        </div>
+        <p>{{ formatDate(cm.startDate) }} → {{ formatDate(cm.endDate) }} · {{ formatCurrency(cm.pricePaid) }}</p>
+      </div>
+      <ng-template #noMembership>
+        <p class="empty-hint">You don't have an active membership yet. Ask your gym owner to assign one, or renew below.</p>
+      </ng-template>
+
+      <div class="renew-panel" *ngIf="showRenewPanel()">
+        <h3>Choose a plan</h3>
+        <div class="dashboard-error" *ngIf="renewError()">{{ renewError() }}</div>
+        <div class="renew-plan-grid">
+          <label
+            class="renew-plan-option"
+            *ngFor="let plan of availablePlans()"
+            [class.selected]="selectedPlanId() === plan.id"
+          >
+            <input type="radio" name="renewPlan" [value]="plan.id" (change)="selectedPlanId.set(plan.id)" />
+            <span class="renew-plan-name">{{ plan.name }}</span>
+            <span class="renew-plan-price">{{ formatCurrency(plan.price) }} / {{ billingCycleLabels[plan.billingCycle] }}</span>
+          </label>
+        </div>
+        <label class="autorenew-check">
+          <input type="checkbox" [checked]="autoRenew()" (change)="autoRenew.set(!autoRenew())" />
+          Auto-renew this plan
+        </label>
+        <div class="renew-actions">
+          <button type="button" class="btn-secondary" (click)="showRenewPanel.set(false)">Cancel</button>
+          <button type="button" class="btn-primary" [disabled]="isRenewing()" (click)="submitRenew()">
+            {{ isRenewing() ? 'Submitting…' : 'Confirm' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="membership-history" *ngIf="d.membershipHistory.content.length > 0">
+        <h3>History</h3>
+        <table class="data-table">
+          <thead>
+            <tr><th>Plan</th><th>Period</th><th>Paid</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let h of d.membershipHistory.content">
+              <td>{{ h.planName }}</td>
+              <td>{{ formatDate(h.startDate) }} – {{ formatDate(h.endDate) }}</td>
+              <td>{{ formatCurrency(h.pricePaid) }}</td>
+              <td><span class="status-badge" [ngClass]="h.status === 'ACTIVE' ? 'badge-success' : 'badge-neutral'">{{ membershipStatusLabels[h.status] }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ ATTENDANCE ============ -->
+    <section class="member-card" *ngIf="section()==='attendance'">
+      <div class="member-card-header">
+        <h2>My Attendance</h2>
+        <button type="button" class="btn-primary btn-inline" [disabled]="isCheckingIn() || checkedOutToday()" (click)="checkedInToday() ? checkOut() : checkIn()">
+          {{ checkedOutToday() ? 'Done for today ✓' : checkedInToday() ? 'Check out' : 'Check in now' }}
+        </button>
+      </div>
+      <p class="hero-checkin-msg success" *ngIf="checkInMessage()">{{ checkInMessage() }}</p>
+      <p class="hero-checkin-msg error" *ngIf="checkInError()">{{ checkInError() }}</p>
+      <p class="page-subtitle" *ngIf="todaysRecord() as r">
+        Today: checked in at {{ formatDateTime(r.checkInTime) }}<ng-container *ngIf="r.checkOutTime"> · checked out at {{ formatDateTime(r.checkOutTime) }}</ng-container>
+      </p>
+      <app-empty-state
+        *ngIf="d.attendance.content.length === 0"
+        icon="🗓️"
+        title="No check-ins yet"
+        message="Hit Check In above next time you're at the gym."
+      ></app-empty-state>
+      <table class="data-table" *ngIf="d.attendance.content.length > 0">
+        <thead>
+          <tr><th>Date</th><th>Check-In</th><th>Check-Out</th><th>Method</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let a of d.attendance.content">
+            <td>{{ formatDate(a.attendanceDate) }}</td>
+            <td>{{ formatDateTime(a.checkInTime) }}</td>
+            <td>{{ a.checkOutTime ? formatDateTime(a.checkOutTime) : '—' }}</td>
+            <td>{{ attendanceMethodLabels[a.method] }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ============ DIET ============ -->
+    <section class="member-card diet-card" *ngIf="section()==='diet'">
+      <div class="member-card-header">
+        <h2>My Diet Plan</h2>
+        <button type="button" class="btn-ai" (click)="toggleAiPanel()">
+          ✨ {{ showAiPanel() ? 'Close AI Generator' : 'Generate with AI' }}
+        </button>
+      </div>
+
+      <div class="ai-generator" *ngIf="showAiPanel()">
+        <div class="ai-generator-grid">
+          <div class="ai-builder">
+            <h3>✨ Prompt Builder</h3>
+            <label>Diet Type</label>
+            <select [ngModel]="aiDietType()" (ngModelChange)="aiDietType.set($event)" [ngModelOptions]="{ standalone: true }">
+              <option value="">Balanced</option>
+              <option value="vegetarian">Vegetarian</option>
+              <option value="vegan">Vegan</option>
+              <option value="high-protein">High Protein</option>
+              <option value="keto">Keto</option>
+              <option value="low-carb">Low Carb</option>
+            </select>
+
+            <label>Cuisine Preference</label>
+            <input type="text" [ngModel]="aiCuisine()" (ngModelChange)="aiCuisine.set($event)" [ngModelOptions]="{ standalone: true }" placeholder="e.g. Indian, Mediterranean" />
+
+            <label>Daily Calories</label>
+            <input
+              type="number"
+              [ngModel]="aiTargetCalories()"
+              (ngModelChange)="aiTargetCalories.set($event)"
+              [ngModelOptions]="{ standalone: true }"
+              placeholder="e.g. 2200"
+            />
+
+            <label>Meals Per Day</label>
+            <input
+              type="number"
+              [ngModel]="aiMealsPerDay()"
+              (ngModelChange)="aiMealsPerDay.set($event)"
+              [ngModelOptions]="{ standalone: true }"
+              placeholder="e.g. 4"
+            />
+
+            <label>Allergies / Restrictions</label>
+            <input type="text" [ngModel]="aiAllergies()" (ngModelChange)="aiAllergies.set($event)" [ngModelOptions]="{ standalone: true }" placeholder="e.g. peanuts, lactose" />
+
+            <label>Additional Notes</label>
+            <textarea [ngModel]="aiNotes()" (ngModelChange)="aiNotes.set($event)" [ngModelOptions]="{ standalone: true }" rows="2" placeholder="Anything else your plan should account for"></textarea>
+
+            <div class="dashboard-error" *ngIf="aiError()">{{ aiError() }}</div>
+            <button type="button" class="btn-ai btn-ai-generate" [disabled]="isGeneratingAiPlan()" (click)="generateAiPlan()">
+              {{ isGeneratingAiPlan() ? 'Generating…' : '✨ Generate Plan' }}
+            </button>
+          </div>
+
+          <div class="ai-result">
+            <ng-container *ngIf="aiResult() as plan; else noAiResult">
+              <div class="ai-result-header">
+                <div>
+                  <h3>{{ plan.name }}</h3>
+                  <p>{{ plan.description }}</p>
+                </div>
+                <span class="ai-calorie-badge" *ngIf="plan.dailyCalorieTarget">{{ plan.dailyCalorieTarget }} kcal</span>
+              </div>
+              <div class="ai-macros-row" *ngIf="plan.dailyProteinGrams || plan.dailyCarbsGrams || plan.dailyFatGrams">
+                <div class="ai-donut" [style.background]="macroDonutStyle(plan)">
+                  <div class="ai-donut-hole">
+                    <strong>{{ plan.dailyCalorieTarget || 0 }}</strong>
+                    <span>kcal</span>
+                  </div>
+                </div>
+                <div class="ai-macros">
+                  <div><span>Protein</span><strong>{{ plan.dailyProteinGrams || 0 }}g</strong></div>
+                  <div><span>Carbs</span><strong>{{ plan.dailyCarbsGrams || 0 }}g</strong></div>
+                  <div><span>Fat</span><strong>{{ plan.dailyFatGrams || 0 }}g</strong></div>
+                </div>
+              </div>
+              <div class="ai-meal" *ngFor="let item of plan.items">
+                <div class="ai-meal-header">
+                  <strong>{{ item.mealType }}</strong>
+                  <span *ngIf="item.calories">{{ item.calories }} kcal</span>
+                </div>
+                <p>{{ item.foodName }}<ng-container *ngIf="item.quantityDescription"> — {{ item.quantityDescription }}</ng-container></p>
+                <p class="ai-meal-notes" *ngIf="item.notes">{{ item.notes }}</p>
+              </div>
+            </ng-container>
+            <ng-template #noAiResult>
+              <div class="ai-result-empty">
+                <span class="ai-sparkle">✨</span>
+                <p>No plan generated yet</p>
+                <p class="empty-hint">Fill the builder and hit Generate</p>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+
+      <app-empty-state
+        *ngIf="d.dietPlans.content.length === 0 && !showAiPanel()"
+        icon="🥗"
+        title="No diet plan yet"
+        message="Ask your trainer, or generate one instantly with AI."
+      ></app-empty-state>
+
+      <div class="plan-list-mini" *ngIf="d.dietPlans.content.length > 0">
+        <div class="mini-card" *ngFor="let plan of d.dietPlans.content">
+          <div class="mini-card-top">
+            <strong>{{ plan.name }}</strong>
+            <span class="status-badge" [ngClass]="plan.active ? 'badge-success' : 'badge-neutral'">{{ plan.active ? 'Active' : 'Past' }}</span>
+          </div>
+          <p *ngIf="plan.dailyCalorieTarget">{{ plan.dailyCalorieTarget }} kcal/day</p>
+          <p class="mini-card-sub">{{ plan.items.length }} meal{{ plan.items.length === 1 ? '' : 's' }} · {{ plan.trainerName || 'AI Generated' }}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ WORKOUTS ============ -->
+    <section class="member-card" *ngIf="section()==='workouts'">
+      <div class="member-card-header">
+        <h2>My Workout Plans</h2>
+      </div>
+      <app-empty-state
+        *ngIf="d.workouts.content.length === 0"
+        icon="💪"
+        title="No workout plan yet"
+        message="Your trainer will assign one soon."
+      ></app-empty-state>
+      <div class="plan-list-mini" *ngIf="d.workouts.content.length > 0">
+        <div class="mini-card" *ngFor="let w of d.workouts.content">
+          <div class="mini-card-top">
+            <strong>{{ w.name }}</strong>
+            <span class="status-badge" [ngClass]="w.active ? 'badge-success' : 'badge-neutral'">{{ w.active ? 'Active' : 'Past' }}</span>
+          </div>
+          <p class="mini-card-sub">{{ w.exercises.length }} exercise{{ w.exercises.length === 1 ? '' : 's' }} · {{ w.trainerName || '—' }}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PAYMENTS ============ -->
+    <section class="member-card" *ngIf="section()==='payments'">
+      <div class="member-card-header">
+        <h2>My Payments</h2>
+      </div>
+      <app-empty-state
+        *ngIf="d.payments.content.length === 0"
+        icon="💳"
+        title="No payments yet"
+        message="Your payment history will show up here."
+      ></app-empty-state>
+      <table class="data-table" *ngIf="d.payments.content.length > 0">
+        <thead>
+          <tr><th>Date</th><th>Amount</th><th>Method</th><th>Status</th><th>Invoice</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of d.payments.content">
+            <td>{{ formatDate(p.createdAt) }}</td>
+            <td>{{ formatCurrency(p.amount) }}</td>
+            <td>{{ paymentMethodLabels[p.method] }}</td>
+            <td><span class="status-badge" [ngClass]="p.status === 'SUCCESS' ? 'badge-success' : p.status === 'PENDING' ? 'badge-warning' : 'badge-neutral'">{{ paymentStatusLabels[p.status] }}</span></td>
+            <td>
+              <button
+                type="button"
+                class="action-link"
+                *ngIf="p.invoicePdfUrl || p.invoiceNumber"
+                [disabled]="downloadingInvoiceId() === p.id"
+                (click)="downloadInvoice(p.id, p.invoiceNumber)"
+              >
+                {{ downloadingInvoiceId() === p.id ? 'Downloading…' : 'Download' }}
+              </button>
+              <span *ngIf="!p.invoicePdfUrl && !p.invoiceNumber">—</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ============ NOTIFICATIONS ============ -->
+    <section class="member-card" *ngIf="section()==='notifications'">
+      <div class="member-card-header">
+        <h2>Notifications</h2>
+      </div>
+      <app-empty-state
+        *ngIf="d.notifications.content.length === 0"
+        icon="🔔"
+        title="Nothing yet"
+        message="Updates about your membership and payments will appear here."
+      ></app-empty-state>
+      <ul class="notification-list" *ngIf="d.notifications.content.length > 0">
+        <li *ngFor="let n of d.notifications.content">
+          <span class="notification-dot" [ngClass]="n.status === 'SENT' ? 'dot-success' : 'dot-danger'"></span>
+          <div>
+            <p>{{ n.content }}</p>
+            <span class="notification-time">{{ formatDateTime(n.createdAt) }}</span>
+          </div>
+        </li>
+      </ul>
+    </section>
+  </ng-container>
+</div>

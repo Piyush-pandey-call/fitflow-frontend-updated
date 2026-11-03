@@ -1,0 +1,51 @@
+.checkin-card {
+  background: #fff;
+  border: 1px solid var(--ff-border, #e5e7eb);
+  border-radius: var(--ff-radius, 10px);
+  padding: 20px 22px;
+  margin-bottom: 20px;
+}
+
+.checkin-search input {
+  width: 100%;
+  border: 1px solid var(--ff-border, #e5e7eb);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  outline: none;
+}
+
+.checkin-search input:focus {
+  border-color: var(--ff-primary, #4f46e5);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+}
+
+.checkin-results {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.checkin-results li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 1px solid var(--ff-border, #e5e7eb);
+  border-radius: 8px;
+}
+
+.checkin-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ff-text, #111827);
+}
+
+.checkin-mobile {
+  font-size: 12.5px;
+  color: var(--ff-text-muted, #6b7280);
+  flex: 1;
+}

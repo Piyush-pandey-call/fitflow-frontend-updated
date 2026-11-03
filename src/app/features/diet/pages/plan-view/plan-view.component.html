@@ -1,0 +1,93 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <h1>{{ plan()?.name || 'Diet Plan' }}</h1>
+    <div style="display: flex; gap: 10px">
+      <button type="button" class="btn-secondary" [disabled]="isDownloading()" (click)="downloadPdf()">
+        {{ isDownloading() ? 'Downloading…' : '⬇ Download PDF' }}
+      </button>
+      <a class="btn-secondary" *ngIf="plan() as p" [routerLink]="['/diet/member', p.memberId]">← Back to Plans</a>
+    </div>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">{{ errorMessage() }}</div>
+  <div class="dashboard-skeleton" *ngIf="isLoading()">Loading plan…</div>
+
+  <ng-container *ngIf="plan() as p">
+    <div class="details-card" style="margin-bottom: 20px">
+      <div class="details-grid">
+        <div>
+          <span class="details-label">Member</span>
+          <span class="details-value">{{ p.memberName }}</span>
+        </div>
+        <div>
+          <span class="details-label">Trainer</span>
+          <span class="details-value">{{ p.trainerName || '—' }}</span>
+        </div>
+        <div>
+          <span class="details-label">Daily Target</span>
+          <span class="details-value">
+            {{ p.dailyCalorieTarget ? p.dailyCalorieTarget + ' kcal' : '—' }}
+            <ng-container *ngIf="p.dailyProteinGrams || p.dailyCarbsGrams || p.dailyFatGrams">
+              ({{ p.dailyProteinGrams || 0 }}g P / {{ p.dailyCarbsGrams || 0 }}g C / {{ p.dailyFatGrams || 0 }}g F)
+            </ng-container>
+          </span>
+        </div>
+        <div>
+          <span class="details-label">Status</span>
+          <span class="status-badge" [ngClass]="p.active ? 'badge-success' : 'badge-neutral'">
+            {{ p.active ? 'Active' : 'Deactivated' }}
+          </span>
+        </div>
+      </div>
+      <p class="field-hint" style="margin-top: 10px" *ngIf="p.description">{{ p.description }}</p>
+
+      <button
+        *ngIf="p.active && authService.currentUser()?.role !== Role.MEMBER"
+        type="button"
+        class="action-link danger"
+        style="margin-top: 12px"
+        (click)="showDeactivateConfirm.set(true)"
+      >
+        Deactivate Plan
+      </button>
+    </div>
+
+    <div class="details-card" *ngFor="let meal of itemsByMeal()" style="margin-bottom: 14px">
+      <h3 class="form-section-title">{{ meal.mealType }}</h3>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Food</th>
+            <th>Quantity</th>
+            <th>Calories</th>
+            <th>Protein</th>
+            <th>Carbs</th>
+            <th>Fat</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of meal.items" class="table-row">
+            <td>{{ item.foodName }}</td>
+            <td>{{ item.quantityDescription || '—' }}</td>
+            <td>{{ item.calories ?? '—' }}</td>
+            <td>{{ item.proteinGrams != null ? item.proteinGrams + 'g' : '—' }}</td>
+            <td>{{ item.carbsGrams != null ? item.carbsGrams + 'g' : '—' }}</td>
+            <td>{{ item.fatGrams != null ? item.fatGrams + 'g' : '—' }}</td>
+            <td>{{ item.notes || '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-container>
+</div>
+
+<app-confirm-dialog
+  [open]="showDeactivateConfirm()"
+  title="Deactivate this plan?"
+  message="The member will no longer see this as an active diet plan. This cannot be undone."
+  confirmLabel="Deactivate"
+  [isProcessing]="isDeactivating()"
+  (confirm)="confirmDeactivate()"
+  (cancel)="showDeactivateConfirm.set(false)"
+></app-confirm-dialog>

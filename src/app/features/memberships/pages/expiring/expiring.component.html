@@ -1,0 +1,43 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <div>
+      <h1>Expiring memberships</h1>
+      <p class="page-subtitle">Members whose plan ends soon. Call them before they lapse.</p>
+    </div>
+  </div>
+
+  <div class="window-bar" role="group" aria-label="Show memberships ending within">
+    <button type="button" *ngFor="let w of windows" [class.active]="days() === w" (click)="setDays(w)">
+      Next {{ w }} days
+    </button>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">
+    {{ errorMessage() }}
+    <button class="btn-retry" (click)="load()">Retry</button>
+  </div>
+  <div class="dashboard-skeleton" *ngIf="isLoading() && !pageData()">Loading…</div>
+
+  <ng-container *ngIf="pageData() as page">
+    <app-empty-state *ngIf="page.content.length === 0" icon="✅" title="Nobody is expiring soon"
+      message="No active memberships end in the next {{ days() }} days."></app-empty-state>
+
+    <table class="data-table" *ngIf="page.content.length > 0">
+      <thead><tr><th>Member</th><th>Plan</th><th>Ends</th><th>Days left</th><th>Paid</th><th></th></tr></thead>
+      <tbody>
+        <tr *ngFor="let m of page.content">
+          <td><strong>{{ m.memberName }}</strong></td>
+          <td>{{ m.planName }}</td>
+          <td>{{ m.endDate | date: 'd MMM y' }}</td>
+          <td><span class="days-pill" [ngClass]="urgency(m.endDate)">{{ daysLeft(m.endDate) }} day{{ daysLeft(m.endDate) === 1 ? '' : 's' }}</span></td>
+          <td>₹{{ m.pricePaid | number }}</td>
+          <td><a class="action-link" [routerLink]="['/memberships/member', m.memberId]">Renew →</a></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <app-pagination *ngIf="page.content.length > 0"
+      [pageNumber]="page.pageNumber" [totalPages]="page.totalPages" [totalElements]="page.totalElements"
+      [pageSize]="page.pageSize" [first]="page.first" [last]="page.last" (pageChange)="onPageChange($event)"></app-pagination>
+  </ng-container>
+</div>

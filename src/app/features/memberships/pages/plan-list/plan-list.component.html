@@ -1,0 +1,76 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <h1>Membership Plans</h1>
+    <div style="display: flex; gap: 10px; align-items: center">
+      <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ff-text-muted)">
+        <input type="checkbox" [checked]="showInactive()" (change)="toggleShowInactive()" />
+        Show inactive plans
+      </label>
+      <button *ngIf="authService.currentUser()?.role === Role.GYM_OWNER" class="btn-primary btn-inline" (click)="goToNew()">
+        + New Plan
+      </button>
+    </div>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">
+    {{ errorMessage() }}
+    <button class="btn-retry" (click)="load()">Retry</button>
+  </div>
+
+  <div class="dashboard-skeleton" *ngIf="isLoading()">Loading plans…</div>
+
+  <app-empty-state
+    *ngIf="!isLoading() && plans().length === 0"
+    icon="🏷️"
+    title="No plans yet"
+    message="Create your first membership plan to start assigning it to members."
+    [actionLabel]="authService.currentUser()?.role === Role.GYM_OWNER ? '+ New Plan' : undefined"
+    (action)="goToNew()"
+  ></app-empty-state>
+
+  <div class="plan-grid" *ngIf="!isLoading() && plans().length > 0">
+    <div class="plan-card" *ngFor="let plan of plans()" [class.plan-inactive]="!plan.active">
+      <div class="plan-card-header">
+        <h3>{{ plan.name }}</h3>
+        <span class="status-badge" [ngClass]="plan.active ? 'badge-success' : 'badge-neutral'">
+          {{ plan.active ? 'Active' : 'Inactive' }}
+        </span>
+      </div>
+
+      <p class="plan-price">
+        {{ formatPrice(plan.price) }}
+        <span class="plan-cycle">/ {{ billingCycleLabels[plan.billingCycle] }}</span>
+      </p>
+
+      <p class="plan-description" *ngIf="plan.description">{{ plan.description }}</p>
+
+      <ul class="plan-meta">
+        <li *ngIf="plan.gstPercentage">GST: {{ plan.gstPercentage }}%</li>
+        <li *ngIf="plan.includesPersonalTraining">Includes personal training</li>
+        <li *ngIf="plan.maxMembers">Capped at {{ plan.maxMembers }} members</li>
+        <li>{{ plan.activeSubscriberCount }} active subscriber{{ plan.activeSubscriberCount === 1 ? '' : 's' }}</li>
+      </ul>
+
+      <div class="plan-actions">
+        <a class="action-link" [routerLink]="['/memberships/plans', plan.id, 'members']">👥 View Members</a>
+        <ng-container *ngIf="authService.currentUser()?.role === Role.GYM_OWNER">
+          <a class="action-link" [routerLink]="['/memberships/plans', plan.id, 'edit']">Edit</a>
+          <button type="button" class="action-link danger" (click)="requestDelete(plan, $event)">Delete</button>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-confirm-dialog
+  [open]="!!deleteTarget()"
+  title="Delete this plan?"
+  [message]="
+    deleteError() ||
+    ('This will permanently delete ' + (deleteTarget()?.name || 'this plan') + '. Plans with active subscribers cannot be deleted.')
+  "
+  confirmLabel="Delete"
+  [isProcessing]="isDeleting()"
+  (confirm)="confirmDelete()"
+  (cancel)="cancelDelete()"
+></app-confirm-dialog>

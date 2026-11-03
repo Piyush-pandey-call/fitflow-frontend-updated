@@ -1,0 +1,39 @@
+<header class="app-header">
+  <div class="header-status"><span>{{ gym()?.name || 'FITFLOW' }} / {{ currentUser()?.role === 'GYM_OWNER' ? 'OWNER' : currentUser()?.role === 'SUPER_ADMIN' ? 'ADMIN' : currentUser()?.role === 'TRAINER' ? 'TRAINER' : 'MEMBER' }}</span></div>
+<form class="header-search" (submit)="search($event, searchInput.value)"><input #searchInput type="search" placeholder="Search anything..." aria-label="Search members" /><svg class="header-search-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 5 5"></path></svg></form>
+
+  <a
+    *ngIf="showTrialPill() && gym() as g"
+    routerLink="/billing/pricing"
+    class="trial-pill"
+    [class.trial-pill-expired]="isTrialExpired()"
+  >
+    {{ pillLabel() }}
+  </a>
+
+  <span *ngIf="currentUser()?.role === 'MEMBER'" class="live-system">LIVE SYSTEM</span>
+  <div class="header-user" role="button" tabindex="0" (keydown.enter)="menuOpen.set(!menuOpen())" (click)="menuOpen.set(!menuOpen())">
+    <img
+      *ngIf="profileImageUrl() as profileImageUrl; else initialsAvatar"
+      class="header-avatar"
+      [src]="profileImageUrl"
+      alt="Profile photo"
+      (error)="onProfileImageError()"
+    />
+    <ng-template #initialsAvatar>
+      <span class="header-avatar">{{ initials(currentUser()?.fullName) }}</span>
+    </ng-template>
+    <div class="header-user-info">
+      <span class="header-name">{{ currentUser()?.fullName }}</span>
+      <span class="header-role">{{ currentUser()?.role }}</span>
+    </div>
+    <span class="header-caret">▾</span>
+
+    <div class="header-menu" *ngIf="menuOpen()">
+      <a class="header-menu-item" routerLink="/profile">My profile</a>
+      <button type="button" class="header-menu-item" (click)="logout()" [disabled]="isLoggingOut()">
+        {{ isLoggingOut() ? 'Logging out…' : 'Log out' }}
+      </button>
+    </div>
+  </div>
+</header>

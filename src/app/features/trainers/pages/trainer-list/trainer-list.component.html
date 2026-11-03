@@ -1,0 +1,59 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <h1>Trainers</h1>
+    <button
+      *ngIf="authService.currentUser()?.role === Role.GYM_OWNER"
+      class="btn-primary btn-inline"
+      (click)="goToNew()"
+    >
+      + Add Trainer
+    </button>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">
+    {{ errorMessage() }}
+    <button class="btn-retry" (click)="load()">Retry</button>
+  </div>
+
+  <div class="list-toolbar">
+    <select class="status-filter" [(ngModel)]="statusFilter" (ngModelChange)="onStatusFilterChange()">
+      <option value="">All statuses</option>
+      <option *ngFor="let s of statusOptions" [value]="s">{{ statusLabels[s] }}</option>
+    </select>
+  </div>
+
+  <div class="dashboard-skeleton" *ngIf="isLoading() && !pageData()">Loading trainers…</div>
+
+  <ng-container *ngIf="pageData() as page">
+    <app-empty-state
+      *ngIf="page.content.length === 0"
+      icon="🏋️"
+      title="No trainers found"
+      [message]="statusFilter ? 'Try a different status filter.' : 'Add your first trainer to get started.'"
+      [actionLabel]="!statusFilter && authService.currentUser()?.role === Role.GYM_OWNER ? '+ Add Trainer' : undefined"
+      (action)="goToNew()"
+    ></app-empty-state>
+
+    <div class="trainer-grid" *ngIf="page.content.length"><article class="trainer-tile" *ngFor="let trainer of page.content;let i=index"><span class="trainer-initial">{{trainer.fullName[0]}}</span><h2>{{trainer.fullName}}</h2><p>{{ trainer.specializations || 'Fitness trainer' }}<br>{{trainer.experienceYears || 0}} years experience · {{trainer.assignedMemberCount}} members</p><span class="status-badge" [ngClass]="statusTone(trainer.status)">{{statusLabels[trainer.status]}}</span><div class="trainer-tile-footer"><a class="action-link" [routerLink]="['/trainers',trainer.id,'edit']" *ngIf="authService.currentUser()?.role === Role.GYM_OWNER">Edit</a><a class="btn-primary btn-inline" [routerLink]="['/trainers',trainer.id]">View profile</a></div></article></div><section class="trainer-summary" *ngIf="page.content.length"><h3>TEAM OVERVIEW</h3>{{page.totalElements}} trainers · Review assignments and availability from each trainer's profile.</section>
+    <app-pagination
+      *ngIf="page.content.length > 0"
+      [pageNumber]="page.pageNumber"
+      [totalPages]="page.totalPages"
+      [totalElements]="page.totalElements"
+      [pageSize]="page.pageSize"
+      [first]="page.first"
+      [last]="page.last"
+      (pageChange)="onPageChange($event)"
+    ></app-pagination>
+  </ng-container>
+</div>
+
+<app-confirm-dialog
+  [open]="!!deleteTarget()"
+  title="Remove this trainer?"
+  [message]="'This will remove ' + (deleteTarget()?.fullName || 'this trainer') + ' from your staff. This cannot be undone.'"
+  confirmLabel="Remove"
+  [isProcessing]="isDeleting()"
+  (confirm)="confirmDelete()"
+  (cancel)="cancelDelete()"
+></app-confirm-dialog>

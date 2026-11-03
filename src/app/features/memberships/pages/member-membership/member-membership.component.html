@@ -1,0 +1,213 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <h1>Membership<ng-container *ngIf="member() as m"> — {{ m.fullName }}</ng-container></h1>
+    <a class="btn-secondary" *ngIf="member() as m" [routerLink]="['/members', m.id]">← Back to Member</a>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">
+    {{ errorMessage() }}
+    <button class="btn-retry" (click)="loadAll()">Retry</button>
+  </div>
+
+  <div class="dashboard-skeleton" *ngIf="isLoading()">Loading membership…</div>
+
+  <ng-container *ngIf="!isLoading()">
+    <!-- Current membership -->
+    <div class="details-card" style="margin-bottom: 20px">
+      <div class="dashboard-header" style="margin-bottom: 10px">
+        <h3 class="form-section-title" style="margin: 0">Current Membership</h3>
+        <button
+          *ngIf="authService.currentUser()?.role === Role.GYM_OWNER"
+          type="button"
+          class="btn-primary btn-inline"
+          (click)="openAssignForm()"
+        >
+          {{ current() ? 'Renew' : 'Assign Plan' }}
+        </button>
+      </div>
+
+      <div style="margin-bottom: 12px" *ngIf="member() as m">
+        <a class="action-link" [routerLink]="['/payments']" [queryParams]="{ memberId: m.id }">View Payment History →</a>
+      </div>
+
+      <ng-container *ngIf="current() as c; else noCurrentTpl">
+        <div class="details-grid">
+          <div>
+            <span class="details-label">Plan</span>
+            <span class="details-value">{{ c.planName }}</span>
+          </div>
+          <div>
+            <span class="details-label">Status</span>
+            <span class="status-badge" [ngClass]="statusTone(c.status)">{{ statusLabels[c.status] }}</span>
+          </div>
+          <div>
+            <span class="details-label">Period</span>
+            <span class="details-value">{{ c.startDate | date: 'mediumDate' }} – {{ c.endDate | date: 'mediumDate' }}</span>
+          </div>
+          <div>
+            <span class="details-label">Price Paid</span>
+            <span class="details-value">{{ formatPrice(c.pricePaid) }}</span>
+          </div>
+          <div>
+            <span class="details-label">Auto-Renew</span>
+            <span class="details-value">{{ c.autoRenew ? 'On' : 'Off' }}</span>
+          </div>
+        </div>
+
+        <p class="field-hint" *ngIf="c.status === MemberMembershipStatus.PENDING_PAYMENT" style="margin-top: 12px">
+          This membership is awaiting a successful payment before it becomes active.
+        </p>
+
+        <div
+          style="margin-top: 14px; display: flex; gap: 10px"
+          *ngIf="c.status === MemberMembershipStatus.PENDING_PAYMENT && (authService.currentUser()?.role === Role.GYM_OWNER || authService.currentUser()?.role === Role.TRAINER)"
+        >
+          <button type="button" class="btn-primary btn-inline" [disabled]="isPaying()" (click)="payNow()">
+            {{ isPaying() ? 'Opening Razorpay…' : 'Pay Now (Razorpay)' }}
+          </button>
+          <button
+            *ngIf="authService.currentUser()?.role === Role.GYM_OWNER"
+            type="button"
+            class="btn-secondary"
+            (click)="openOfflineForm()"
+          >
+            Record Offline Payment
+          </button>
+        </div>
+
+        <div class="dashboard-error" *ngIf="paymentError()" style="margin-top: 12px">{{ paymentError() }}</div>
+
+        <div class="details-card" style="margin-top: 14px" *ngIf="showOfflineForm()">
+          <h3 class="form-section-title">Record Offline Payment</h3>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="offlineAmount">Amount</label>
+              <input id="offlineAmount" type="number" min="0" [(ngModel)]="offlineAmount" [ngModelOptions]="{ standalone: true }" />
+            </div>
+            <div class="form-field">
+              <label for="offlineMethod">Method</label>
+              <select id="offlineMethod" [(ngModel)]="offlineMethod" [ngModelOptions]="{ standalone: true }">
+                <option *ngFor="let m of offlineMethodOptions" [value]="m">{{ paymentMethodLabels[m] }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="offlineNotes">Notes <span class="field-hint">(optional)</span></label>
+            <input id="offlineNotes" type="text" [(ngModel)]="offlineNotes" [ngModelOptions]="{ standalone: true }" />
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" (click)="showOfflineForm.set(false)">Cancel</button>
+            <button
+              type="button"
+              class="btn-primary btn-inline"
+              [disabled]="isSubmittingOffline() || !offlineAmount"
+              (click)="submitOfflinePayment()"
+            >
+              {{ isSubmittingOffline() ? 'Recording…' : 'Record Payment' }}
+            </button>
+          </div>
+        </div>
+
+        <div style="margin-top: 14px" *ngIf="authService.currentUser()?.role === Role.GYM_OWNER && c.status === MemberMembershipStatus.ACTIVE">
+          <button type="button" class="action-link danger" (click)="showCancelConfirm.set(true)">Cancel Membership</button>
+        </div>
+      </ng-container>
+
+      <ng-template #noCurrentTpl>
+        <p class="field-hint">This member has no active or pending membership.</p>
+      </ng-template>
+    </div>
+
+    <!-- Assign/renew form -->
+    <div class="details-card" style="margin-bottom: 20px" *ngIf="showAssignForm()">
+      <h3 class="form-section-title">{{ current() ? 'Renew Membership' : 'Assign Membership' }}</h3>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label for="planId">Plan</label>
+          <select id="planId" [(ngModel)]="selectedPlanId">
+            <option *ngFor="let plan of plans()" [value]="plan.id">
+              {{ plan.name }} — {{ formatPrice(plan.price) }}
+            </option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label style="display: flex; align-items: center; gap: 8px; font-weight: 500; margin-top: 22px">
+            <input type="checkbox" [(ngModel)]="autoRenew" style="width: auto" />
+            Auto-renew
+          </label>
+        </div>
+      </div>
+
+      <p class="field-hint">
+        This creates a pending-payment subscription. It becomes active once a successful payment is recorded.
+      </p>
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="showAssignForm.set(false)">Cancel</button>
+        <button
+          type="button"
+          class="btn-primary btn-inline"
+          [disabled]="isSubmittingAssign() || !selectedPlanId"
+          (click)="submitAssignOrRenew()"
+        >
+          {{ isSubmittingAssign() ? 'Saving…' : current() ? 'Confirm Renewal' : 'Confirm Assignment' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- History -->
+    <div class="details-card">
+      <h3 class="form-section-title">Membership History</h3>
+
+      <app-empty-state
+        *ngIf="historyPage() && historyPage()!.content.length === 0"
+        icon="📜"
+        title="No history yet"
+        message="Past renewals and assignments will show up here."
+      ></app-empty-state>
+
+      <table class="data-table" *ngIf="historyPage() && historyPage()!.content.length > 0">
+        <thead>
+          <tr>
+            <th>Plan</th>
+            <th>Period</th>
+            <th>Price Paid</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let record of historyPage()!.content" class="table-row">
+            <td>{{ record.planName }}</td>
+            <td>{{ record.startDate | date: 'mediumDate' }} – {{ record.endDate | date: 'mediumDate' }}</td>
+            <td>{{ formatPrice(record.pricePaid) }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="statusTone(record.status)">{{ statusLabels[record.status] }}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <app-pagination
+        *ngIf="historyPage() && historyPage()!.content.length > 0"
+        [pageNumber]="historyPage()!.pageNumber"
+        [totalPages]="historyPage()!.totalPages"
+        [totalElements]="historyPage()!.totalElements"
+        [pageSize]="historyPage()!.pageSize"
+        [first]="historyPage()!.first"
+        [last]="historyPage()!.last"
+        (pageChange)="onHistoryPageChange($event)"
+      ></app-pagination>
+    </div>
+  </ng-container>
+</div>
+
+<app-confirm-dialog
+  [open]="showCancelConfirm()"
+  title="Cancel this membership?"
+  message="This disables auto-renew and cancels the current subscription. This cannot be undone."
+  confirmLabel="Cancel Membership"
+  [isProcessing]="isCancelling()"
+  (confirm)="confirmCancel()"
+  (cancel)="showCancelConfirm.set(false)"
+></app-confirm-dialog>

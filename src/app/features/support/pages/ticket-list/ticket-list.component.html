@@ -1,0 +1,66 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <h1>{{ isSuperAdmin ? 'All Support Tickets' : 'Support Tickets' }}</h1>
+    <div style="display: flex; gap: 10px">
+      <a *ngIf="!isSuperAdmin" routerLink="/support/new" class="btn-primary btn-inline">+ New Ticket</a>
+      <a routerLink="/support/faq" class="btn-secondary">Help & FAQ</a>
+    </div>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">
+    {{ errorMessage() }}
+    <button class="btn-retry" (click)="load()">Retry</button>
+  </div>
+
+  <div class="list-toolbar" *ngIf="isSuperAdmin">
+    <select class="status-filter" [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()">
+      <option value="">All statuses</option>
+      <option *ngFor="let s of statusOptions" [value]="s">{{ statusLabels[s] }}</option>
+    </select>
+  </div>
+
+  <div class="dashboard-skeleton" *ngIf="isLoading() && !pageData()">Loading tickets…</div>
+
+  <ng-container *ngIf="pageData() as page">
+    <app-empty-state
+      *ngIf="page.content.length === 0"
+      icon="🎫"
+      title="No support tickets"
+      [message]="isSuperAdmin ? 'No tickets have been raised yet.' : 'Raise a ticket if you need help from the FitFlow team.'"
+    ></app-empty-state>
+
+    <table class="data-table" *ngIf="page.content.length > 0">
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th *ngIf="isSuperAdmin">Gym</th>
+          <th>Priority</th>
+          <th>Status</th>
+          <th>Raised</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of page.content" class="table-row" [routerLink]="['/support', t.id]">
+          <td>{{ t.subject }}</td>
+          <td *ngIf="isSuperAdmin">{{ t.gymName }}</td>
+          <td>{{ t.priority }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="statusTone(t.status)">{{ statusLabels[t.status] }}</span>
+          </td>
+          <td>{{ t.createdAt | date: 'mediumDate' }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <app-pagination
+      *ngIf="page.content.length > 0"
+      [pageNumber]="page.pageNumber"
+      [totalPages]="page.totalPages"
+      [totalElements]="page.totalElements"
+      [pageSize]="page.pageSize"
+      [first]="page.first"
+      [last]="page.last"
+      (pageChange)="onPageChange($event)"
+    ></app-pagination>
+  </ng-container>
+</div>

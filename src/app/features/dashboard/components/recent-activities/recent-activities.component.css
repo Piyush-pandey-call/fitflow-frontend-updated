@@ -1,0 +1,112 @@
+.activities-card {
+  background: linear-gradient(145deg, #181925, #14161f);
+  border-radius: 14px;
+  border: 1px solid #444150;
+  padding: 22px;
+  box-shadow: 0 4px 0 #030407, 0 18px 38px rgba(0, 0, 0, 0.22);
+}
+
+.chart-title {
+  margin: 0 0 16px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #f4f4f7;
+}
+
+.chart-empty {
+  padding: 28px 0;
+  text-align: center;
+  color: #989aaa;
+  font-size: 14px;
+}
+
+.activity-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 14px;
+  border-radius: 18px;
+  background: #20222e;
+  border: 1px solid #2b2d3a;
+  transition: background 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+.activity-item:hover {
+  background: #252638;
+  border-color: #454057;
+  transform: translateY(-1px);
+}
+
+.activity-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  background: rgba(167, 128, 255, 0.12);
+  border: 1px solid rgba(167, 128, 255, 0.28);
+}
+
+.activity-icon svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.activity-icon.tone-success {
+  color: #4dccac;
+  background: rgba(77, 204, 172, 0.12);
+  border-color: rgba(77, 204, 172, 0.28);
+}
+
+.activity-icon.tone-primary {
+  color: #a780ff;
+  background: rgba(167, 128, 255, 0.12);
+  border-color: rgba(167, 128, 255, 0.28);
+}
+
+.activity-icon.tone-warning {
+  color: #eac981;
+  background: rgba(234, 201, 129, 0.12);
+  border-color: rgba(234, 201, 129, 0.28);
+}
+
+.activity-icon.tone-neutral {
+  color: #38d3e2;
+  background: rgba(56, 211, 226, 0.1);
+  border-color: rgba(56, 211, 226, 0.25);
+}
+
+.activity-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.activity-desc {
+  font-size: 14px;
+  color: #e5e5ed;
+}
+
+.activity-time {
+  font-size: 12px;
+  color: #989aaa;
+}

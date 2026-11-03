@@ -1,0 +1,77 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <h1>Notifications Log</h1>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">
+    {{ errorMessage() }}
+    <button class="btn-retry" (click)="load()">Retry</button>
+  </div>
+
+  <div class="list-toolbar">
+    <div class="channel-tabs">
+      <button
+        type="button"
+        *ngFor="let c of channelOptions"
+        class="channel-tab"
+        [class.active]="activeChannel === c"
+        (click)="activeChannel = c"
+      >
+        {{ c === 'ALL' ? 'All' : c }}
+      </button>
+    </div>
+    <span class="status-badge badge-primary" *ngIf="memberIdFilter">
+      Filtered to one member
+      <button type="button" style="margin-left: 6px; background: none; border: none; cursor: pointer; color: inherit" (click)="clearMemberFilter()">✕</button>
+    </span>
+  </div>
+
+  <div class="dashboard-skeleton" *ngIf="isLoading() && !pageData()">Loading notifications…</div>
+
+  <ng-container *ngIf="pageData() as page">
+    <app-empty-state
+      *ngIf="filteredContent().length === 0"
+      icon="🔔"
+      title="No notifications found"
+      message="Sent WhatsApp, email, and SMS messages will show up here."
+    ></app-empty-state>
+
+    <table class="data-table" *ngIf="filteredContent().length > 0">
+      <thead>
+        <tr>
+          <th>Channel</th>
+          <th>Type</th>
+          <th>Recipient</th>
+          <th>Content</th>
+          <th>Status</th>
+          <th>Sent</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let n of filteredContent()" class="table-row">
+          <td>{{ channelIcon(n.channel) }} {{ n.channel }}</td>
+          <td>{{ typeLabels[n.type] }}</td>
+          <td>{{ n.recipientContact || '—' }}</td>
+          <td class="notification-content">{{ n.content }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="n.status === NotificationStatus.SENT ? 'badge-success' : 'badge-neutral'">
+              {{ n.status }}
+            </span>
+          </td>
+          <td>{{ n.createdAt | date: 'short' }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <app-pagination
+      *ngIf="page.content.length > 0"
+      [pageNumber]="page.pageNumber"
+      [totalPages]="page.totalPages"
+      [totalElements]="page.totalElements"
+      [pageSize]="page.pageSize"
+      [first]="page.first"
+      [last]="page.last"
+      (pageChange)="onPageChange($event)"
+    ></app-pagination>
+  </ng-container>
+</div>

@@ -1,0 +1,24 @@
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <span class="sidebar-flame">F</span>
+    <div class="sidebar-brand-text">
+      <span class="sidebar-brand-mark">FitFlow</span>
+      <span class="sidebar-brand-tag">Command Center</span>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a
+      *ngFor="let item of visibleItems"
+      [routerLink]="item.path" [queryParams]="authService.currentUser()?.role==='MEMBER' ? queryFor(item.label) : {}"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: item.path==='/dashboard/member' }"
+      class="sidebar-link" [attr.title]="item.label"
+    >
+      <svg class="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path [attr.d]="iconPaths[item.icon]" />
+      </svg>
+      <span>{{ item.label }}</span>
+    </a>
+  </nav>
+<a class="sidebar-help" routerLink="/help"><strong>Need assistance?</strong><span>Support and guides</span></a></aside>

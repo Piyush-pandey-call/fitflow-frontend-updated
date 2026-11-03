@@ -1,0 +1,31 @@
+<div class="chart-card">
+  <h3 class="chart-title">{{ title }}</h3>
+
+  <div class="chart-empty" *ngIf="!data?.length">No data for this period yet.</div>
+
+  <svg *ngIf="data?.length" [attr.viewBox]="viewBox" class="chart-svg" preserveAspectRatio="none">
+    <line *ngFor="let y of [30,70,110,150]" x1="0" x2="560" [attr.y1]="y" [attr.y2]="y" stroke="#272936" stroke-width="1" />
+    <rect *ngFor="let dot of dots" [attr.x]="dot.x-11" [attr.y]="dot.y" width="22" [attr.height]="164-dot.y" fill="#262b39" />
+    <polyline [attr.points]="linePoints" fill="none" [attr.stroke]="color" stroke-width="2.5"></polyline>
+
+    <g *ngFor="let dot of dots; let i = index">
+      <circle
+        [attr.cx]="dot.x"
+        [attr.cy]="dot.y"
+        [attr.r]="hoveredIndex === i ? 5 : 3"
+        [attr.fill]="color"
+        (mouseenter)="hoveredIndex = i"
+        (mouseleave)="hoveredIndex = null"
+        style="cursor: pointer"
+      ></circle>
+    </g>
+  </svg>
+
+  <div class="chart-tooltip" *ngIf="hoveredIndex !== null && dots[hoveredIndex]">
+    {{ formatDate(dots[hoveredIndex].date) }} — {{ valuePrefix }}{{ dots[hoveredIndex].value | number: '1.0-2' }}
+  </div>
+
+  <div class="chart-axis" *ngIf="data?.length">
+    <span *ngFor="let point of data">{{ formatDate(point.date) }}</span>
+  </div>
+</div>

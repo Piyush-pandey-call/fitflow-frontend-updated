@@ -1,0 +1,10 @@
+.analytics-range {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+.analytics-range .form-field {
+  flex: 1;
+  max-width: 200px;
+}

@@ -1,0 +1,26 @@
+.exercise-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.exercise-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.exercise-image {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #f3f4f6;
+}
+
+.exercise-name {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ff-text, #111827);
+}

@@ -1,0 +1,116 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <div><h1>Daily attendance</h1><p class="page-subtitle">Track check-ins and who is in the gym right now.</p></div>
+    <div style="display: flex; gap: 10px">
+      <a routerLink="/attendance/qr" class="btn-secondary">QR Check-In</a>
+      <a routerLink="/attendance/analytics" class="btn-secondary">Analytics</a>
+    </div>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">
+    {{ errorMessage() }}
+    <button class="btn-retry" (click)="load()">Retry</button>
+  </div>
+
+  <div class="metric-strip"><div class="metric-tile"><span>CHECK-INS ON SELECTED DATE</span><strong>{{pageData()?.totalElements ?? '—'}}</strong></div><div class="metric-tile"><span>INSIDE NOW · LOADED RECORDS</span><strong>{{insideNow()}}</strong></div><div class="metric-tile"><span>VIEWING DATE</span><strong style="font-size:20px">{{selectedDate | date:'d MMM'}}</strong></div></div>
+  <!-- Quick manual check-in -->
+  <div class="checkin-card details-card">
+    <h3 class="form-section-title">Manual Check-In</h3>
+    <div class="checkin-search">
+      <input
+        type="text"
+        placeholder="Search member by name or mobile…"
+        [(ngModel)]="memberSearchTerm"
+        (ngModelChange)="onMemberSearchChange()"
+      />
+    </div>
+
+    <ul class="checkin-results" *ngIf="memberResults().length > 0">
+      <li *ngFor="let member of memberResults()">
+        <img
+          [src]="member.profileImageUrl || 'https://api.dicebear.com/7.x/initials/svg?seed=' + member.fullName"
+          class="member-avatar"
+          alt=""
+        />
+        <span class="checkin-name">{{ member.fullName }}</span>
+        <span class="checkin-mobile">{{ member.mobileNumber }}</span>
+        <button
+          type="button"
+          class="btn-primary btn-inline"
+          [disabled]="checkingInMemberId() === member.id"
+          (click)="checkInMember(member)"
+        >
+          {{ checkingInMemberId() === member.id ? 'Checking in…' : 'Check In' }}
+        </button>
+      </li>
+    </ul>
+
+    <p class="field-hint" *ngIf="isSearchingMembers()">Searching…</p>
+    <p class="field-hint" *ngIf="!isSearchingMembers() && memberSearchTerm && memberResults().length === 0">
+      No active members match "{{ memberSearchTerm }}".
+    </p>
+  </div>
+
+  <!-- Daily list -->
+  <div class="dashboard-header" style="margin-top: 24px">
+    <h2 style="font-size: 16px; margin: 0">
+      Check-ins for {{ isToday() ? 'Today' : (selectedDate | date: 'mediumDate') }}
+    </h2>
+    <input type="date" class="status-filter" [(ngModel)]="selectedDate" (ngModelChange)="onDateChange()" />
+  </div>
+
+  <div class="dashboard-skeleton" *ngIf="isLoading() && !pageData()">Loading attendance…</div>
+
+  <ng-container *ngIf="pageData() as page">
+    <app-empty-state
+      *ngIf="page.content.length === 0"
+      icon="🗓️"
+      title="No check-ins yet"
+      message="Nobody has checked in for this date."
+    ></app-empty-state>
+
+    <table class="data-table" *ngIf="page.content.length > 0">
+      <thead>
+        <tr>
+          <th>Member</th>
+          <th>Check-In</th>
+          <th>Check-Out</th>
+          <th>Method</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let record of page.content" class="table-row">
+          <td>
+            <div class="member-cell">
+              <img
+                [src]="record.memberProfileImageUrl || 'https://api.dicebear.com/7.x/initials/svg?seed=' + record.memberName"
+                class="member-avatar"
+                alt=""
+              />
+              <a [routerLink]="['/attendance/member', record.memberId]">{{ record.memberName }}</a>
+            </div>
+          </td>
+          <td>{{ record.checkInTime | date: 'shortTime' }}</td>
+          <td>{{ record.checkOutTime ? (record.checkOutTime | date: 'shortTime') : '—' }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="record.method === AttendanceMethod.QR_CODE ? 'badge-primary' : 'badge-neutral'">
+              {{ methodLabels[record.method] }}
+            </span>
+          </td>
+          <td class="actions-cell">
+            <button
+              *ngIf="!record.checkOutTime"
+              type="button"
+              class="action-link"
+              [disabled]="checkingOutId() === record.id"
+              (click)="checkOut(record.id)"
+            >
+              {{ checkingOutId() === record.id ? 'Checking out…' : 'Check Out' }}
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </ng-container>
+</div>

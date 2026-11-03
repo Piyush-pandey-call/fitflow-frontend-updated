@@ -1,0 +1,78 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <div>
+      <h1>Gyms</h1>
+      <p class="dashboard-subtitle">Every gym registered on FitFlow</p>
+    </div>
+    <select class="status-filter" (change)="onStatusChange($any($event.target).value)">
+      <option value="">All statuses</option>
+      <option *ngFor="let s of statusOptions" [value]="s">{{ statusLabels[s] }}</option>
+    </select>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">
+    {{ errorMessage() }}
+    <button class="btn-retry" (click)="load()">Retry</button>
+  </div>
+
+  <div class="dashboard-skeleton" *ngIf="isLoading() && !pageData()">Loading gyms…</div>
+
+  <ng-container *ngIf="pageData() as page">
+    <app-empty-state
+      *ngIf="page.content.length === 0"
+      icon="🏢"
+      title="No gyms yet"
+      message="Gyms will show up here as owners register."
+    ></app-empty-state>
+
+    <table class="data-table" *ngIf="page.content.length > 0">
+      <thead>
+        <tr>
+          <th>Gym</th>
+          <th>Owner Email</th>
+          <th>City</th>
+          <th>Members</th>
+          <th>Trainers</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let g of page.content" class="table-row" [routerLink]="['/admin/gyms', g.id]">
+          <td>
+            <div class="gym-cell">
+              <img [src]="g.logoUrl || 'https://api.dicebear.com/7.x/initials/svg?seed=' + g.name" alt="" class="gym-logo-thumb" />
+              {{ g.name }}
+            </div>
+          </td>
+          <td>{{ g.email }}</td>
+          <td>{{ g.city || '—' }}</td>
+          <td>{{ g.totalMembers }}</td>
+          <td>{{ g.totalTrainers }}</td>
+          <td>
+            <span
+              class="status-badge"
+              [ngClass]="{
+                'badge-success': g.status === 'ACTIVE',
+                'badge-warning': g.status === 'TRIAL',
+                'badge-neutral': g.status === 'SUSPENDED' || g.status === 'CANCELLED'
+              }"
+            >
+              {{ statusLabels[g.status] }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <app-pagination
+      *ngIf="page.content.length > 0"
+      [pageNumber]="page.pageNumber"
+      [totalPages]="page.totalPages"
+      [totalElements]="page.totalElements"
+      [pageSize]="page.pageSize"
+      [first]="page.first"
+      [last]="page.last"
+      (pageChange)="onPageChange($event)"
+    ></app-pagination>
+  </ng-container>
+</div>

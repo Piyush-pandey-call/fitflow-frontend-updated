@@ -1,0 +1,14 @@
+<div class="tag-input">
+  <span class="tag-chip" *ngFor="let tag of tags; let i = index">
+    {{ tag }}
+    <button type="button" class="tag-remove" (click)="remove(i)" [attr.aria-label]="'Remove ' + tag">✕</button>
+  </span>
+  <input
+    type="text"
+    class="tag-field"
+    [(ngModel)]="draft"
+    [placeholder]="tags.length ? '' : placeholder"
+    (keydown)="onKeydown($event)"
+    (blur)="add()"
+  />
+</div>

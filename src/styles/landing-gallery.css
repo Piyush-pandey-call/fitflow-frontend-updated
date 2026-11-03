@@ -1,0 +1,122 @@
+.website-experience .landing-card-image {
+  display: block;
+  width: calc(100% + 56px);
+  height: 154px;
+  margin: -28px -28px 22px;
+  border-radius: 12px 12px 0 0;
+  object-fit: cover;
+  transform: translateZ(22px);
+  transition: transform 450ms ease, filter 450ms ease;
+}
+
+.website-experience .concept-card {
+  transform-style: preserve-3d;
+  translate: 0 0 0;
+  rotate: none;
+  transition: translate 350ms cubic-bezier(0.2, 0.75, 0.25, 1), rotate 350ms ease, border-color 350ms ease, box-shadow 350ms ease;
+}
+
+.website-experience .concept-card:hover,
+.website-experience .concept-card:focus-within {
+  border-color: rgba(102, 216, 223, 0.44);
+  box-shadow: 0 12px 0 #050608, 0 30px 62px rgba(0, 0, 0, 0.35);
+  translate: 0 -7px 10px;
+  rotate: y -1.5deg;
+}
+
+.website-experience .concept-card:hover .landing-card-image,
+.website-experience .concept-card:focus-within .landing-card-image {
+  filter: saturate(1.12);
+  transform: translateZ(30px) scale(1.025);
+}
+
+.website-experience .button,
+.website-experience .nav-actions a {
+  transition: transform 220ms ease, filter 220ms ease, box-shadow 220ms ease;
+}
+
+.website-experience .button:hover,
+.website-experience .button:focus-visible {
+  filter: brightness(1.08);
+  transform: translateY(-3px) translateZ(8px);
+}
+
+.website-experience .website-nav nav a,
+.website-experience .wordmark {
+  transition: color 220ms ease, transform 220ms ease;
+}
+
+.website-experience .website-nav nav a:hover,
+.website-experience .wordmark:hover {
+  color: #66d8df;
+  transform: translateY(-2px);
+}
+
+.website-experience .steps-grid .landing-card-image {
+  height: 122px;
+}
+
+.website-experience .role-grid .landing-card-image {
+  height: 176px;
+}
+
+.website-experience .price-grid .landing-card-image {
+  height: 132px;
+}
+
+.website-experience .faq-cta .landing-card-image {
+  height: 142px;
+}
+
+.website-experience .hero .gym-photo {
+  background-image: url('/assets/gym-training.jpg');
+  animation: landing-photo-drift 18s ease-in-out infinite alternate;
+}
+
+.website-experience .final-scene .gym-photo {
+  background-image: url('/assets/gym-flexibility.jpg');
+}
+
+@keyframes landing-photo-drift {
+  from {
+    transform: scale(1.015) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.08) translate3d(-1.5%, -1%, 0);
+  }
+}
+
+@media (max-width: 1000px) {
+  .website-experience .landing-card-image {
+    width: calc(100% + 44px);
+    margin: -22px -22px 20px;
+  }
+}
+
+@media (max-width: 700px) {
+  .website-experience .concept-card:hover,
+  .website-experience .concept-card:focus-within {
+    translate: 0 -3px 0;
+    rotate: none;
+  }
+
+  .website-experience .concept-card:hover .landing-card-image,
+  .website-experience .concept-card:focus-within .landing-card-image {
+    transform: none;
+  }
+
+  .website-experience .hero .gym-photo {
+    animation-duration: 26s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .website-experience *,
+  .website-experience *::before,
+  .website-experience *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

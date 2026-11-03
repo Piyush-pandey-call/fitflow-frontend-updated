@@ -1,0 +1,102 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <div><h1>Members</h1><p class="page-subtitle">Manage your members, plans and gym community.</p></div>
+    <button class="btn-primary btn-inline" (click)="goToNew()">+ Add Member</button>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">
+    {{ errorMessage() }}
+    <button class="btn-retry" (click)="load()">Retry</button>
+  </div>
+
+  <div class="metric-strip"><div class="metric-tile"><span>ALL MEMBERS</span><strong>{{ totalMembers() ?? '—' }}</strong></div><div class="metric-tile"><span>ACTIVE MEMBERS</span><strong>{{ activeMembers() ?? '—' }}</strong></div><div class="metric-tile"><span>EXPIRED MEMBERSHIPS</span><strong>{{ expiredMembers() ?? '—' }}</strong></div></div>
+  <div class="list-toolbar">
+    <app-search-bar placeholder="Search by name or mobile…" (searchChange)="onSearchChange($event)"></app-search-bar>
+
+    <select class="status-filter" [(ngModel)]="statusFilter" (ngModelChange)="onStatusFilterChange()">
+      <option value="">All statuses</option>
+      <option *ngFor="let s of statusOptions" [value]="s">{{ statusLabels[s] }}</option>
+    </select>
+  </div>
+
+  <div class="dashboard-skeleton" *ngIf="isLoading() && !pageData()">Loading members…</div>
+
+  <ng-container *ngIf="pageData() as page">
+    <app-empty-state
+      *ngIf="page.content.length === 0"
+      icon="🧑‍🤝‍🧑"
+      title="No members found"
+      [message]="searchTerm || statusFilter ? 'Try adjusting your search or filter.' : 'Add your first member to get started.'"
+      [actionLabel]="!searchTerm && !statusFilter ? '+ Add Member' : undefined"
+      (action)="goToNew()"
+    ></app-empty-state>
+
+    <table class="data-table" *ngIf="page.content.length > 0">
+      <thead>
+        <tr>
+          <th>Member</th>
+          <th>Mobile</th>
+          <th>Status</th>
+          <th>Membership Expiry</th>
+          <th>Trainer</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let member of page.content" class="table-row" [routerLink]="['/members', member.id]">
+          <td>
+            <div class="member-cell">
+              <span>{{ member.fullName }}</span>
+            </div>
+          </td>
+          <td>{{ member.mobileNumber }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="statusTone(member.status)">
+              {{ statusLabels[member.status] }}
+            </span>
+          </td>
+          <td>{{ member.membershipExpiryDate ? (member.membershipExpiryDate | date: 'mediumDate') : '—' }}</td>
+          <td>{{ member.assignedTrainerName || '—' }}</td>
+          <td class="actions-cell">
+            <a
+              class="action-link"
+              [routerLink]="['/members', member.id, 'edit']"
+              (click)="$event.stopPropagation()"
+            >
+              Edit
+            </a>
+            <button
+              *ngIf="authService.currentUser()?.role === Role.GYM_OWNER"
+              type="button"
+              class="action-link danger"
+              (click)="requestDelete(member, $event)"
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <app-pagination
+      *ngIf="page.content.length > 0"
+      [pageNumber]="page.pageNumber"
+      [totalPages]="page.totalPages"
+      [totalElements]="page.totalElements"
+      [pageSize]="page.pageSize"
+      [first]="page.first"
+      [last]="page.last"
+      (pageChange)="onPageChange($event)"
+    ></app-pagination>
+  </ng-container>
+</div>
+
+<app-confirm-dialog
+  [open]="!!deleteTarget()"
+  title="Delete this member?"
+  [message]="'This will permanently remove ' + (deleteTarget()?.fullName || 'this member') + ' from your gym. This cannot be undone.'"
+  confirmLabel="Delete"
+  [isProcessing]="isDeleting()"
+  (confirm)="confirmDelete()"
+  (cancel)="cancelDelete()"
+></app-confirm-dialog>

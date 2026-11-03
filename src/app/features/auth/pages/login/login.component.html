@@ -1,0 +1,208 @@
+<div class="login-page">
+
+  <!-- =========================
+       LEFT HERO SECTION
+  ========================== -->
+
+  <section class="hero-section">
+
+    <div class="hero-overlay"></div>
+
+    <div class="hero-content">
+
+      <div class="hero-logo">
+        <span>FitFlow</span>
+      </div>
+
+      <h1>
+        Welcome back to
+        <span>your command center.</span>
+      </h1>
+
+      <p>
+        All your gym operations. One clear place.
+      </p>
+
+      <ol class="hero-numbered-list">
+        <li><span class="hero-num">01</span> See today's check-ins</li>
+        <li><span class="hero-num">02</span> Track member renewals</li>
+        <li><span class="hero-num">03</span> Stay on top of revenue</li>
+      </ol>
+
+    </div>
+
+  </section>
+
+  <!-- =========================
+       LOGIN SECTION
+  ========================== -->
+
+  <section class="login-section">
+
+    <div class="login-card">
+
+      <div class="login-header">
+
+        <h2>Sign in to FitFlow</h2>
+
+        <p>
+          Access your gym dashboard
+        </p>
+
+      </div>
+
+      <div
+        class="auth-error"
+        *ngIf="errorMessage()">
+
+        {{ errorMessage() }}
+
+      </div>
+
+      <form
+
+        [formGroup]="form"
+
+        (ngSubmit)="onSubmit()"
+
+        class="auth-form"
+
+        novalidate>
+
+        <!-- EMAIL -->
+
+        <div class="form-field">
+
+          <label for="owner-email">EMAIL ADDRESS</label>
+
+          <input
+
+            id="owner-email" type="email"
+
+            formControlName="email"
+
+            placeholder="you@example.com"
+
+            autocomplete="email"
+
+            [class.invalid]="email.invalid && email.touched">
+
+          <span
+
+            class="field-error"
+
+            *ngIf="email.invalid && email.touched">
+
+            {{ email.errors?.['required']
+            ? 'Email is required'
+            : 'Enter a valid email address' }}
+
+          </span>
+
+        </div>
+
+        <!-- PASSWORD -->
+
+        <div class="form-field">
+
+          <label for="owner-password">PASSWORD</label>
+
+          <div class="password-wrapper">
+
+            <input
+
+              id="owner-password" [type]="showPassword() ? 'text' : 'password'"
+
+              formControlName="password"
+
+              placeholder="••••••••"
+
+              autocomplete="current-password"
+
+              [class.invalid]="password.invalid && password.touched">
+
+            <button
+
+              type="button"
+
+              class="toggle-visibility"
+
+              (click)="togglePasswordVisibility()">
+
+              {{ showPassword() ? 'Hide' : 'Show' }}
+
+            </button>
+
+          </div>
+
+          <span
+
+            class="field-error"
+
+            *ngIf="password.invalid && password.touched">
+
+            Password is required
+
+          </span>
+
+        </div>
+
+        <!-- OPTIONS -->
+
+        <div class="login-options login-options-right">
+
+          <a routerLink="/auth/forgot-password">
+
+            Forgot password?
+
+          </a>
+
+        </div>
+
+        <!-- LOGIN -->
+
+        <button
+
+          class="btn-primary"
+
+          type="submit"
+
+          [disabled]="isSubmitting()">
+
+          <span *ngIf="!isSubmitting()">
+
+            Sign in
+
+          </span>
+
+          <span *ngIf="isSubmitting()">
+
+            Signing in…
+
+          </span>
+
+        </button>
+
+      </form>
+
+      <div class="register-area">
+
+        <p class="new-owner-line">
+
+          New gym owner? <a routerLink="/auth/register">Start a 7-day free trial</a>
+
+        </p>
+
+        <p class="member-login-hint">
+
+          Are you a gym member? <a routerLink="/auth/member-login">Sign in here</a>
+
+        </p>
+
+      </div>
+
+    </div>
+
+  </section>
+
+</div>

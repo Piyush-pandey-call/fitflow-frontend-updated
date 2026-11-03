@@ -1,0 +1,730 @@
+:root {
+  --ff-primary: #8b5cf6;
+  --ff-primary-dark: #7c3aed;
+  --ff-danger: #ef4444;
+  --ff-danger-bg: rgba(239, 68, 68, 0.14);
+  --ff-success: #22c55e;
+  --ff-success-bg: rgba(34, 197, 94, 0.14);
+  --ff-text: #f4f4f6;
+  --ff-text-muted: #9096a3;
+  --ff-border: #23262f;
+  --ff-bg: #0a0b0f;
+  --ff-bg-elevated: #15171e;
+  --ff-card: #14161c;
+  --ff-radius: 12px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: var(--ff-text);
+  background: var(--ff-bg);
+  background-image:
+    radial-gradient(circle at 12% -10%, rgba(239, 68, 68, 0.12), transparent 40%),
+    radial-gradient(circle at 88% 0%, rgba(139, 92, 246, 0.12), transparent 40%);
+  background-attachment: fixed;
+}
+
+/* ---------- Shared auth layout (login / register / forgot / reset / verify) ---------- */
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(239, 68, 68, 0.16), transparent 45%),
+    radial-gradient(circle at 85% 90%, rgba(139, 92, 246, 0.16), transparent 45%),
+    #0a0b0f;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--ff-card);
+  border: 1px solid var(--ff-border);
+  border-radius: 16px;
+  padding: 40px 36px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
+.auth-brand {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.auth-brand-mark {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--ff-primary);
+  letter-spacing: -0.02em;
+}
+
+.auth-subtitle {
+  margin: 8px 0 0;
+  color: var(--ff-text-muted);
+  font-size: 14px;
+}
+
+.auth-error {
+  background: var(--ff-danger-bg);
+  color: var(--ff-danger);
+  font-size: 13.5px;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 18px;
+}
+
+.auth-success {
+  background: var(--ff-success-bg);
+  color: var(--ff-success);
+  font-size: 13.5px;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 18px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ff-text);
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+  border: 1px solid var(--ff-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  width: 100%;
+  background: var(--ff-bg-elevated);
+  color: var(--ff-text);
+  font-family: inherit;
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+  border-color: var(--ff-primary);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+}
+
+.form-field textarea {
+  resize: vertical;
+}
+
+.form-field input.invalid {
+  border-color: var(--ff-danger);
+}
+
+.field-error {
+  font-size: 12.5px;
+  color: var(--ff-danger);
+}
+
+.field-hint {
+  font-size: 12px;
+  color: var(--ff-text-muted);
+}
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  padding-right: 60px;
+}
+
+.toggle-visibility {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  color: var(--ff-primary);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.auth-form-links {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 13px;
+}
+
+.auth-form-links a {
+  color: var(--ff-primary);
+  text-decoration: none;
+}
+
+.auth-form-links a:hover {
+  text-decoration: underline;
+}
+
+.btn-primary {
+  background: var(--ff-primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--ff-primary-dark);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: var(--ff-bg-elevated);
+  border: 1px solid var(--ff-border);
+  border-radius: 8px;
+  padding: 11px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--ff-text);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-secondary:hover {
+  border-color: var(--ff-primary);
+  color: var(--ff-primary);
+}
+
+.auth-switch {
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--ff-text-muted);
+  margin: 22px 0 0;
+}
+
+.auth-switch a {
+  color: var(--ff-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-switch a:hover {
+  text-decoration: underline;
+}
+
+.auth-icon-success,
+.auth-icon-error {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+/* ---------- Shared dashboard layout (gym-owner / super-admin / future roles) ---------- */
+
+.dashboard-page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 28px 24px 60px;
+}
+
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.dashboard-header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--ff-text);
+}
+
+.btn-refresh {
+  background: var(--ff-bg-elevated);
+  border: 1px solid var(--ff-border);
+  color: var(--ff-text);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-refresh:hover:not(:disabled) {
+  border-color: var(--ff-primary);
+  color: var(--ff-primary);
+}
+
+.btn-refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dashboard-error {
+  background: var(--ff-danger-bg);
+  color: var(--ff-danger);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 13.5px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.btn-retry {
+  background: none;
+  border: 1px solid var(--ff-danger);
+  color: var(--ff-danger);
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dashboard-skeleton {
+  text-align: center;
+  padding: 60px 0;
+  color: var(--ff-text-muted);
+  font-size: 14px;
+}
+
+.success-banner {
+  background: var(--ff-success-bg);
+  color: var(--ff-success);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 13.5px;
+  margin-bottom: 18px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Shared list/table layout (Members today; Trainers, Payments, etc. reuse it) ---------- */
+
+.btn-inline {
+  padding: 9px 16px;
+  width: auto;
+}
+
+.list-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.status-filter {
+  border: 1px solid var(--ff-border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 13.5px;
+  background: var(--ff-bg-elevated);
+  color: var(--ff-text);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--ff-card);
+  border: 1px solid var(--ff-border);
+  border-radius: var(--ff-radius);
+  overflow: hidden;
+}
+
+.data-table th {
+  text-align: left;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--ff-text-muted);
+  background: var(--ff-bg-elevated);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--ff-border);
+}
+
+.data-table td {
+  padding: 12px 16px;
+  font-size: 13.5px;
+  color: var(--ff-text);
+  border-bottom: 1px solid var(--ff-border);
+}
+
+.table-row {
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+
+.table-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.table-row:last-child td {
+  border-bottom: none;
+}
+
+.member-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.member-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: rgba(139, 92, 246, 0.18);
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-badge.badge-success {
+  background: var(--ff-success-bg);
+  color: var(--ff-success);
+}
+
+.status-badge.badge-primary {
+  background: rgba(139, 92, 246, 0.16);
+  color: #c4b5fd;
+}
+
+.status-badge.badge-warning {
+  background: rgba(245, 158, 11, 0.16);
+  color: #fbbf24;
+}
+
+.status-badge.badge-neutral {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--ff-text-muted);
+}
+
+.actions-cell {
+  display: flex;
+  gap: 14px;
+  white-space: nowrap;
+}
+
+.action-link {
+  background: none;
+  border: none;
+  color: var(--ff-primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: none;
+}
+
+.action-link:hover {
+  text-decoration: underline;
+}
+
+.action-link.danger {
+  color: var(--ff-danger);
+}
+
+@media (max-width: 700px) {
+  .data-table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+/* ---------- Shared "form page" layout (Member form today; reused by Trainer/Workout/Diet forms etc.) ---------- */
+
+.form-page {
+  max-width: 760px;
+}
+
+.member-form-card {
+  background: var(--ff-card);
+  border: 1px solid var(--ff-border);
+  border-radius: var(--ff-radius);
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-section-title {
+  margin: 10px 0 -4px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ff-text);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid var(--ff-border);
+  padding-bottom: 8px;
+}
+
+.form-section-title:first-child {
+  margin-top: 0;
+}
+
+.profile-image-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--ff-border);
+}
+
+.profile-image-preview {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: rgba(139, 92, 246, 0.18);
+}
+
+.file-upload-btn {
+  display: inline-block;
+  background: var(--ff-bg-elevated);
+  border: 1px solid var(--ff-border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ff-text);
+  cursor: pointer;
+}
+
+.file-upload-btn:hover {
+  border-color: var(--ff-primary);
+  color: var(--ff-primary);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+@media (max-width: 600px) {
+  .member-form-card {
+    padding: 22px 18px;
+  }
+}
+
+/* ---------- Shared "details page" layout (Member details, Trainer details, reused by future profile pages) ---------- */
+
+.details-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.details-card {
+  background: var(--ff-card);
+  border: 1px solid var(--ff-border);
+  border-radius: var(--ff-radius);
+  padding: 22px;
+}
+
+.details-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  position: sticky;
+  top: 20px;
+}
+
+.details-avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: rgba(139, 92, 246, 0.18);
+}
+
+.details-name {
+  margin: 4px 0 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ff-text);
+}
+
+.details-status-row {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--ff-border);
+}
+
+.details-status-row label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ff-text-muted);
+}
+
+.details-status-row select {
+  border: 1px solid var(--ff-border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13.5px;
+}
+
+.details-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.details-actions .btn-primary {
+  text-align: center;
+  text-decoration: none;
+}
+
+.details-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px 24px;
+}
+
+.details-label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--ff-text-muted);
+  margin-bottom: 3px;
+}
+
+.details-value {
+  display: block;
+  font-size: 14px;
+  color: var(--ff-text);
+}
+
+.assigned-count {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--ff-text);
+  margin: 4px 0 8px;
+}
+
+/* ---------- Shared "schedule row" builder grid (Workout plan form + Diet plan form) ---------- */
+
+.schedule-row {
+  display: grid;
+  grid-template-columns: 130px 1fr 70px 70px 1fr 30px;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.schedule-row select,
+.schedule-row input {
+  border: 1px solid var(--ff-border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  width: 100%;
+  background: var(--ff-bg-elevated);
+  color: var(--ff-text);
+}
+
+.schedule-number {
+  text-align: center;
+}
+
+@media (max-width: 760px) {
+  .schedule-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 800px) {
+  .details-layout {
+    grid-template-columns: 1fr;
+  }
+  .details-side {
+    position: static;
+  }
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+}

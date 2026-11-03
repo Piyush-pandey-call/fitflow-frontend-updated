@@ -1,0 +1,7 @@
+/* Global stylesheet entry point - imports the actual FitFlow design system. */
+@import './styles/global.css';
+@import './styles/command-center-theme.css';
+
+@import './styles/pdf-reference-theme.css';
+@import './styles/auth-visuals.css';
+@import './styles/landing-gallery.css';

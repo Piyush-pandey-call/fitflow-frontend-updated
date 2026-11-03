@@ -1,0 +1,159 @@
+<div class="dashboard-page form-page">
+  <div class="dashboard-header">
+    <h1>New Diet Plan<ng-container *ngIf="member() as m"> — {{ m.fullName }}</ng-container></h1>
+    <a class="btn-secondary" *ngIf="member() as m" [routerLink]="['/diet/member', m.id]">← Back to Plans</a>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">{{ errorMessage() }}</div>
+
+  <div class="ai-toggle-bar">
+    <button type="button" class="btn-ai" (click)="toggleAiPanel()">
+      ✨ {{ showAiPanel() ? 'Switch to Manual Form' : 'Generate with AI instead' }}
+    </button>
+  </div>
+
+  <div class="ai-generator-owner" *ngIf="showAiPanel()">
+    <h3>✨ AI Diet Plan Generator</h3>
+    <p class="ai-generator-sub">Gemini will draft a full, real-time diet plan for {{ member()?.fullName || 'this member' }} based on their profile and the preferences below.</p>
+
+    <div class="ai-owner-grid">
+      <div class="form-field">
+        <label>Diet Type</label>
+        <select [ngModel]="aiDietType()" (ngModelChange)="aiDietType.set($event)" [ngModelOptions]="{ standalone: true }">
+          <option value="">Balanced</option>
+          <option value="vegetarian">Vegetarian</option>
+          <option value="vegan">Vegan</option>
+          <option value="high-protein">High Protein</option>
+          <option value="keto">Keto</option>
+          <option value="low-carb">Low Carb</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Cuisine Preference</label>
+        <input type="text" [ngModel]="aiCuisine()" (ngModelChange)="aiCuisine.set($event)" [ngModelOptions]="{ standalone: true }" placeholder="e.g. Indian" />
+      </div>
+      <div class="form-field">
+        <label>Daily Calories</label>
+        <input type="number" [ngModel]="aiTargetCalories()" (ngModelChange)="aiTargetCalories.set($event)" [ngModelOptions]="{ standalone: true }" placeholder="e.g. 2200" />
+      </div>
+      <div class="form-field">
+        <label>Meals Per Day</label>
+        <input type="number" [ngModel]="aiMealsPerDay()" (ngModelChange)="aiMealsPerDay.set($event)" [ngModelOptions]="{ standalone: true }" placeholder="e.g. 4" />
+      </div>
+      <div class="form-field">
+        <label>Allergies / Restrictions</label>
+        <input type="text" [ngModel]="aiAllergies()" (ngModelChange)="aiAllergies.set($event)" [ngModelOptions]="{ standalone: true }" placeholder="e.g. peanuts, lactose" />
+      </div>
+      <div class="form-field">
+        <label>Additional Notes</label>
+        <input type="text" [ngModel]="aiNotes()" (ngModelChange)="aiNotes.set($event)" [ngModelOptions]="{ standalone: true }" placeholder="Anything else to account for" />
+      </div>
+    </div>
+
+    <div class="dashboard-error" *ngIf="aiError()">{{ aiError() }}</div>
+
+    <button type="button" class="btn-ai btn-ai-generate" [disabled]="isGeneratingAiPlan()" (click)="generateAiPlan()">
+      {{ isGeneratingAiPlan() ? 'Generating…' : '✨ Generate & Save Plan' }}
+    </button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="member-form-card" *ngIf="!showAiPanel()" novalidate>
+    <h3 class="form-section-title">Plan Details</h3>
+    <div class="form-field">
+      <label for="name">Plan Name</label>
+      <input id="name" type="text" formControlName="name" [class.invalid]="f.name.invalid && f.name.touched" />
+      <span class="field-error" *ngIf="f.name.invalid && f.name.touched">Plan name is required</span>
+    </div>
+
+    <div class="form-field">
+      <label for="description">Description <span class="field-hint">(optional)</span></label>
+      <textarea id="description" rows="2" formControlName="description"></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label for="trainerId">Trainer <span class="field-hint">(optional)</span></label>
+        <select id="trainerId" formControlName="trainerId">
+          <option value="">— None —</option>
+          <option *ngFor="let t of trainers()" [value]="t.id">{{ t.fullName }}</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label for="startDate">Start Date <span class="field-hint">(optional)</span></label>
+        <input id="startDate" type="date" formControlName="startDate" />
+      </div>
+      <div class="form-field">
+        <label for="endDate">End Date <span class="field-hint">(optional)</span></label>
+        <input id="endDate" type="date" formControlName="endDate" />
+      </div>
+    </div>
+
+    <h3 class="form-section-title">Daily Targets <span class="field-hint">(all optional)</span></h3>
+    <div class="form-row">
+      <div class="form-field">
+        <label for="dailyCalorieTarget">Calories</label>
+        <input id="dailyCalorieTarget" type="number" formControlName="dailyCalorieTarget" min="0" />
+      </div>
+      <div class="form-field">
+        <label for="dailyProteinGrams">Protein (g)</label>
+        <input id="dailyProteinGrams" type="number" formControlName="dailyProteinGrams" min="0" />
+      </div>
+      <div class="form-field">
+        <label for="dailyCarbsGrams">Carbs (g)</label>
+        <input id="dailyCarbsGrams" type="number" formControlName="dailyCarbsGrams" min="0" />
+      </div>
+      <div class="form-field">
+        <label for="dailyFatGrams">Fat (g)</label>
+        <input id="dailyFatGrams" type="number" formControlName="dailyFatGrams" min="0" />
+      </div>
+    </div>
+
+    <h3 class="form-section-title">Meal Plan</h3>
+    <p class="field-hint" style="margin-bottom: 12px">Add food items and assign each to a meal.</p>
+
+    <div class="schedule-row" *ngFor="let row of rows">
+      <select [(ngModel)]="row.mealType" [ngModelOptions]="{ standalone: true }" class="schedule-day">
+        <option *ngFor="let mt of mealTypeOptions" [value]="mt">{{ mt }}</option>
+      </select>
+      <input
+        type="text"
+        [(ngModel)]="row.foodName"
+        [ngModelOptions]="{ standalone: true }"
+        placeholder="Food item"
+        class="schedule-exercise"
+      />
+      <input
+        type="text"
+        [(ngModel)]="row.quantityDescription"
+        [ngModelOptions]="{ standalone: true }"
+        placeholder="Qty (e.g. 100g)"
+        class="schedule-number"
+      />
+      <input
+        type="number"
+        [(ngModel)]="row.calories"
+        [ngModelOptions]="{ standalone: true }"
+        placeholder="Cal"
+        class="schedule-number"
+        min="0"
+      />
+      <input
+        type="text"
+        [(ngModel)]="row.notes"
+        [ngModelOptions]="{ standalone: true }"
+        placeholder="Notes (optional)"
+        class="schedule-notes"
+      />
+      <button type="button" class="action-link danger" (click)="removeRow(row.rowId)">✕</button>
+    </div>
+
+    <button type="button" class="btn-secondary" (click)="addRow()" style="margin-top: 8px">+ Add Food Item</button>
+
+    <div class="form-actions">
+      <a [routerLink]="['/diet/member', member()?.id]" class="btn-secondary">Cancel</a>
+      <button type="submit" class="btn-primary btn-inline" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Creating…' : 'Create Plan' }}
+      </button>
+    </div>
+  </form>
+</div>

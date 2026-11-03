@@ -1,0 +1,29 @@
+.report-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.report-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.report-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ff-text, #111827);
+}
+
+.analytics-range {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+.analytics-range .form-field {
+  flex: 1;
+  max-width: 200px;
+}

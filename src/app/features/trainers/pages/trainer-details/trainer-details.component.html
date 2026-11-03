@@ -1,0 +1,104 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <h1>Trainer Details</h1>
+    <a class="btn-secondary" routerLink="/trainers">← Back to Trainers</a>
+  </div>
+
+  <div class="dashboard-error" *ngIf="errorMessage()">
+    {{ errorMessage() }}
+    <button class="btn-retry" (click)="load()">Retry</button>
+  </div>
+
+  <div class="dashboard-skeleton" *ngIf="isLoading()">Loading trainer…</div>
+
+  <ng-container *ngIf="trainer() as t">
+    <div class="details-layout">
+      <!-- Left: identity + actions -->
+      <div class="details-card details-side">
+        <img
+          [src]="t.profileImageUrl || 'https://api.dicebear.com/7.x/initials/svg?seed=' + t.fullName"
+          class="details-avatar"
+          alt=""
+        />
+        <h2 class="details-name">{{ t.fullName }}</h2>
+        <span
+          class="status-badge"
+          [ngClass]="{
+            'badge-success': t.status === 'ACTIVE',
+            'badge-warning': t.status === 'ON_LEAVE',
+            'badge-neutral': t.status === 'INACTIVE'
+          }"
+        >
+          {{ statusLabels[t.status] }}
+        </span>
+
+        <div class="details-actions" *ngIf="authService.currentUser()?.role === Role.GYM_OWNER">
+          <a class="btn-primary btn-inline" [routerLink]="['/trainers', t.id, 'edit']">Edit Trainer</a>
+          <button type="button" class="action-link danger" (click)="showDeleteConfirm.set(true)">
+            Remove Trainer
+          </button>
+        </div>
+      </div>
+
+      <!-- Right: everything else -->
+      <div class="details-main">
+        <div class="details-card">
+          <h3 class="form-section-title">Assigned Members</h3>
+          <p class="assigned-count">{{ t.assignedMemberCount }}</p>
+          <p class="field-hint">
+            To assign or reassign members to this trainer, edit the member from the
+            <a routerLink="/members">Members</a> page and set "Assigned Trainer" - there's no
+            separate bulk-assign screen on the backend yet.
+          </p>
+        </div>
+
+        <div class="details-card">
+          <h3 class="form-section-title">Contact</h3>
+          <div class="details-grid">
+            <div>
+              <span class="details-label">Mobile</span>
+              <span class="details-value">{{ t.mobileNumber }}</span>
+            </div>
+            <div>
+              <span class="details-label">Email</span>
+              <span class="details-value">{{ t.email || '—' }}</span>
+            </div>
+            <div>
+              <span class="details-label">Experience</span>
+              <span class="details-value">{{ t.experienceYears != null ? t.experienceYears + ' years' : '—' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="details-card" *ngIf="t.certifications.length || t.specializations.length">
+          <h3 class="form-section-title">Certifications & Specializations</h3>
+          <div class="details-grid">
+            <div>
+              <span class="details-label">Certifications</span>
+              <span class="details-value">{{ t.certifications.length ? t.certifications.join(', ') : '—' }}</span>
+            </div>
+            <div>
+              <span class="details-label">Specializations</span>
+              <span class="details-value">{{ t.specializations.length ? t.specializations.join(', ') : '—' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="details-card" *ngIf="t.bio">
+          <h3 class="form-section-title">Bio</h3>
+          <p class="details-value">{{ t.bio }}</p>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+<app-confirm-dialog
+  [open]="showDeleteConfirm()"
+  title="Remove this trainer?"
+  [message]="'This will remove ' + (trainer()?.fullName || 'this trainer') + ' from your staff. This cannot be undone.'"
+  confirmLabel="Remove"
+  [isProcessing]="isDeleting()"
+  (confirm)="confirmDelete()"
+  (cancel)="showDeleteConfirm.set(false)"
+></app-confirm-dialog>
